@@ -1,0 +1,68 @@
+[
+  {
+    "version": "1.1.0",
+    "created_at": "2026-09-02",
+    "macrostructure": "Photographic",
+    "macrostructure_id": 8,
+    "theme": "studied-DNA",
+    "vibe": "consumer video first, ice-mint paper, direct social energy",
+    "theme_axes": {
+      "mode": "light",
+      "display": "bold-grotesque",
+      "accent": "chromatic-mint"
+    },
+    "enrichment": "H6 full-bleed user video + F5 real interactive tracking canvas",
+    "nav": "N7 Brutal Slab",
+    "footer": "Ft8 Marquee Scroll",
+    "motion_primitives": [
+      "real hero video with pause control",
+      "tracking focus pan",
+      "footer marquee with pause and reduced-motion stop"
+    ],
+    "quality_gates": {
+      "pre_emit": "P5 H5 E4 S5 R4 V5",
+      "slop_test": "58/58 code-level pass",
+      "contrast": "token-pair audit pass",
+      "mobile": "responsive rules for 320, 375, 414, and 768 CSS px"
+    },
+    "evidence": [
+      "user-supplied 17-second rink video",
+      "official HILIT wordmark and app icon",
+      "actual browser NanoDet, NanoTrack, and OSNet pipeline"
+    ],
+    "brief": "A TikTok-inspired consumer landing page where visitors select one person in the real video and experience browser-side HILIT tracking and focus playback."
+  },
+  {
+    "version": "1.1.0",
+    "created_at": "2026-09-02",
+    "macrostructure": "Map / Diagram",
+    "macrostructure_id": 19,
+    "theme": "custom",
+    "vibe": "mint signal, night court, technical clarity",
+    "theme_axes": {
+      "mode": "dark",
+      "display": "geometric-sans",
+      "accent": "chromatic-mint"
+    },
+    "enrichment": "E1 Clipped-edge real POC video",
+    "nav": "N9 Edge-aligned minimal",
+    "footer": "Ft5 Statement",
+    "motion_primitives": [
+      "hero orchestrated reveal",
+      "technical node crossfade",
+      "button press and hover"
+    ],
+    "quality_gates": {
+      "pre_emit": "P5 H5 E5 S5 R5 V5",
+      "slop_test": "58/58 pass",
+      "contrast": "WCAG pass; minimum audited text pair 6.41:1",
+      "mobile": "static rules pass for 320, 375, 414, and 768 CSS px"
+    },
+    "evidence": [
+      "actual POC debug video",
+      "actual multi-tracker frame grid",
+      "rerun logic, proxy, and synthetic E2E tests"
+    ],
+    "brief": "Explain HILIT's working tracking technology to non-technical audiences while separating validated POC evidence from PRD/SRS product direction."
+  }
+]

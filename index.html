@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="영상에서 나를 고르면 하일릿이 끝까지 따라갑니다. 직접 지정하고 추적 결과를 확인해 보세요.">
+  <title>HILIT — 내가 고르면, 하일릿이 따라온다</title>
+  <link rel="icon" href="assets/hilit-app-icon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; overflow-x: clip; }
+    html { scroll-behavior: smooth; background: var(--color-paper); }
+    body { min-width: 320px; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); line-height: 1.58; text-rendering: optimizeLegibility; }
+    img, video, canvas { display: block; max-width: 100%; }
+    button, input, a { font: inherit; }
+    button, input[type="range"] { cursor: pointer; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+    .skip-link { position: fixed; inset-block-start: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-overlay); transform: translateY(-180%); padding: var(--space-3) var(--space-4); background: var(--color-accent); color: var(--color-accent-ink); font-weight: 700; }
+    .skip-link:focus { transform: none; }
+    .shell { width: min(100%, var(--content-max)); margin-inline: auto; padding-inline: var(--page-gutter); }
+
+    .site-nav { position: fixed; inset: 0 0 auto; z-index: var(--z-nav); background: var(--color-paper); color: var(--color-ink); border-block-end: var(--rule) solid var(--color-rule); }
+    .nav-inner { min-height: var(--nav-height); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-4); }
+    .brand { display: inline-flex; align-items: center; min-width: 0; min-height: 3.5rem; text-decoration: none; }
+    .brand img { width: var(--brand-size); height: auto; }
+    .nav-links { display: none; justify-self: center; align-items: center; gap: var(--space-6); }
+    .nav-links a { display: inline-flex; align-items: center; min-height: 2.75rem; font-size: var(--text-sm); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
+    .nav-action, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: var(--space-5); border: var(--rule) solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-ink); color: var(--color-light); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+    .btn-mint { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
+    .btn-ghost { border-color: var(--color-rule); background: var(--color-clear); color: var(--color-ink); }
+    .btn-dark-ghost { border-color: var(--color-ink-2); background: var(--color-clear); color: var(--color-light); }
+    .btn:active, .nav-action:active { transform: translateY(1px); }
+    .btn:disabled, .nav-action[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+    .btn[data-loading="true"] { cursor: wait; }
+    .btn[data-state="error"] { border-color: var(--color-error); background: var(--color-error); color: var(--color-light); }
+    .btn[data-state="success"] { border-color: var(--color-success); background: var(--color-success); color: var(--color-accent-ink); }
+
+    .hero { position: relative; min-height: clamp(38rem, 78dvh, 54rem); margin-block-start: var(--nav-height); overflow: clip; background: var(--color-dark); color: var(--color-light); isolation: isolate; }
+    .hero-video, .hero-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: -2; }
+    .hero-poster { display: none; }
+    .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--color-overlay-heavy), var(--color-overlay), var(--color-clear)); }
+    .hero-inner { min-height: clamp(38rem, 78dvh, 54rem); display: flex; flex-direction: column; justify-content: flex-end; padding-block: var(--space-hero-top) var(--space-hero-bottom); }
+    .hero-copy { max-width: 67rem; }
+    .hero h1 { min-width: 0; max-width: 10ch; margin: 0; font-family: var(--font-display); font-size: var(--text-hero); font-weight: 800; line-height: .92; letter-spacing: -.06em; overflow-wrap: anywhere; animation: hero-in var(--dur-long) var(--ease-out) both; }
+    .hero p { max-width: 34rem; margin: var(--space-5) 0 0; font-size: var(--text-lg); font-weight: 600; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-block-start: var(--space-6); }
+    .hero-pause { min-height: 3rem; padding-inline: var(--space-4); border: var(--rule) solid var(--color-light-muted); border-radius: var(--radius-sm); background: var(--color-overlay-heavy); color: var(--color-light); font-weight: 700; line-height: 1; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+    .hero-pause:active { transform: translateY(1px); }
+    .hero-pause:disabled { opacity: .5; cursor: not-allowed; }
+    @keyframes hero-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    .try-section { padding-block: var(--space-section); background: var(--color-paper); }
+    .section-head { display: grid; gap: var(--space-4); margin-block-end: var(--space-7); }
+    .section-head h2, .split-copy h2, .tech-band h2, .final-cta h2 { min-width: 0; margin: 0; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; line-height: .98; letter-spacing: -.045em; overflow-wrap: anywhere; }
+    .section-head p, .split-copy p { max-width: 36rem; margin: 0; color: var(--color-muted); font-size: var(--text-lg); }
+    .demo-wrap { display: grid; gap: var(--space-5); min-width: 0; }
+    .demo-stage { position: relative; aspect-ratio: 16 / 9; min-width: 0; overflow: hidden; background: var(--color-dark); border-radius: var(--radius-md); }
+    .demo-stage canvas, .demo-stage video, .demo-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--color-dark); }
+    #trackingCanvas { cursor: crosshair; touch-action: none; }
+    #candidateLayer { position: absolute; inset: 0; z-index: var(--z-content); pointer-events: none; }
+    .candidate-btn { position: absolute; min-width: 44px; min-height: 44px; padding: 0; pointer-events: auto; border: 3px solid var(--color-accent); background: var(--color-clear); color: var(--color-accent-ink); transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+    .candidate-btn::after { content: attr(data-label); position: absolute; inset-block-start: -3px; inset-inline-start: -3px; padding: var(--space-1) var(--space-2); background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-xs); font-weight: 800; line-height: 1; }
+    .candidate-btn[aria-pressed="true"] { background: var(--color-accent-soft); }
+    .candidate-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .stage-note { position: absolute; inset-block-start: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-content); margin: 0; padding: var(--space-2) var(--space-3); background: var(--color-overlay-heavy); color: var(--color-light); font-size: var(--text-xs); font-weight: 700; pointer-events: none; }
+    .demo-console { display: grid; gap: var(--space-4); align-content: start; }
+    .scrub-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); }
+    .scrubber { width: 100%; min-height: 44px; accent-color: var(--color-focus); }
+    .timecode { min-width: 5.5rem; text-align: end; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+    .status { min-height: 4.5rem; padding-block: var(--space-4); border-block: var(--rule) solid var(--color-rule); }
+    .status strong, .status span { display: block; }
+    .status strong { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.2; }
+    .status span { margin-block-start: var(--space-1); color: var(--color-muted); font-size: var(--text-sm); }
+    .progress { height: .35rem; background: var(--color-paper-3); overflow: hidden; }
+    .progress span { display: block; width: 100%; height: 100%; background: var(--color-accent-strong); transform: scaleX(0); transform-origin: left center; }
+    .demo-actions, .playback-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .mode-switch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: var(--rule) solid var(--color-rule); }
+    .mode-switch button { min-height: 3rem; border: 0; background: var(--color-clear); color: var(--color-muted); font-weight: 700; white-space: nowrap; }
+    .mode-switch button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-light); }
+    .mode-switch button:active { background: var(--color-paper-3); color: var(--color-ink); }
+    .mode-switch button:disabled { opacity: .5; cursor: not-allowed; }
+    .result-line { margin: 0; color: var(--color-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+    .error-box { margin: 0; padding: var(--space-3); background: var(--color-error-light); color: var(--color-error); font-size: var(--text-sm); font-weight: 700; }
+
+    .showcase { background: var(--color-paper-2); }
+    .split { display: grid; min-width: 0; }
+    .split-copy { display: flex; flex-direction: column; justify-content: center; gap: var(--space-5); min-width: 0; padding: var(--space-section-compact) var(--page-gutter); }
+    .split-visual { position: relative; min-height: clamp(26rem, 62vw, 42rem); overflow: hidden; background: var(--color-dark-2); }
+    .split-visual img { width: 100%; height: 100%; object-fit: cover; }
+    .split-visual--crowd img { object-position: center; }
+    .split-visual--focus img { transform: scale(1.85); object-position: 13% 62%; }
+    .focus-box { position: absolute; inset-inline-start: 10%; inset-block-start: 22%; width: 24%; height: 47%; border: 3px solid var(--color-accent); }
+    .focus-box::before { content: "HILIT"; position: absolute; inset-block-start: -1.8rem; inset-inline-start: -3px; padding: var(--space-1) var(--space-2); background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-xs); font-weight: 800; }
+    .moment-strip { position: absolute; inset: auto var(--space-4) var(--space-4); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+    .moment-strip img { aspect-ratio: 4 / 5; object-fit: cover; border: 2px solid var(--color-light); }
+    .moment-strip img:nth-child(1) { object-position: 12% center; }
+    .moment-strip img:nth-child(2) { object-position: 50% center; }
+    .moment-strip img:nth-child(3) { object-position: 84% center; }
+
+    .tech-band { padding-block: var(--space-section-compact); background: var(--color-dark); color: var(--color-light); }
+    .tech-band h2 { max-width: 13ch; }
+    .tech-row { display: grid; gap: var(--space-4); margin-block-start: var(--space-7); }
+    .tech-item { padding-block: var(--space-4); border-block-start: var(--rule) solid var(--color-ink-2); }
+    .tech-item strong, .tech-item span { display: block; }
+    .tech-item strong { font-family: var(--font-display); font-size: var(--text-xl); line-height: 1.1; }
+    .tech-item span { margin-block-start: var(--space-2); color: var(--color-light-muted); }
+
+    .final-cta { position: relative; min-height: clamp(30rem, 66dvh, 48rem); display: flex; align-items: flex-end; overflow: hidden; background: var(--color-dark); color: var(--color-light); isolation: isolate; }
+    .final-cta img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .final-cta::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, var(--color-overlay-heavy), var(--color-clear)); }
+    .final-cta-inner { width: 100%; padding-block: var(--space-hero-bottom); }
+    .final-cta h2 { max-width: 9ch; }
+    .final-cta .btn { margin-block-start: var(--space-6); }
+
+    .footer { padding-block: var(--space-8) var(--space-5); background: var(--color-paper); }
+    .footer-line { max-width: 20ch; margin: 0; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; line-height: .98; letter-spacing: -.045em; }
+    .footer-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-block-start: var(--space-7); padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
+    .footer-meta img { width: 7rem; height: auto; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .nav-links a:hover { color: var(--color-focus); }
+      .nav-action:hover, .btn:hover { transform: translateY(-1px); }
+      .btn-mint:hover { background: var(--color-accent-strong); }
+      .btn-ghost:hover { background: var(--color-paper-3); }
+      .btn-dark-ghost:hover, .hero-pause:hover { background: var(--color-dark-2); }
+      .candidate-btn:hover { background: var(--color-accent-soft); }
+      .mode-switch button:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    }
+    @media (min-width: 40rem) {
+      .section-head { grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr); align-items: end; }
+      .tech-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .moment-strip { inset-inline-start: 28%; }
+    }
+    @media (min-width: 60rem) {
+      .nav-links { display: flex; }
+      .demo-wrap { grid-template-columns: minmax(0, 1.55fr) minmax(18rem, .45fr); align-items: start; }
+      .demo-console { position: sticky; top: calc(var(--nav-height) + var(--space-5)); }
+      .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr); min-height: 42rem; }
+      .split--reverse .split-copy { order: 2; }
+      .split--reverse .split-visual { order: 1; }
+      .split-visual { min-height: 42rem; }
+      .split-copy { padding-inline: clamp(3rem, 6vw, 7rem); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+      .hero-video { display: none; }
+      .hero-poster { display: block; }
+      .hero-pause { display: none; }
+    }
+    @media (prefers-reduced-data: reduce) { .hero-video { display: none; } .hero-poster { display: block; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+  <header class="site-nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark-transparent.png" width="535" height="165" alt="HILIT"></a>
+      <nav class="nav-links" aria-label="주요 메뉴"><a href="#try">직접 체험</a><a href="#features">기능</a><a href="#technology">기술</a></nav>
+      <a class="nav-action" href="#try">체험하기</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/video-frames/frame-005.png" fetchpriority="high" aria-label="빙상장에서 여러 사람이 스케이트를 타는 실제 하일릿 체험 영상">
+        <source src="assets/hilit-demo.mp4" type="video/mp4">
+        <track kind="captions" src="assets/hilit-demo.vtt" srclang="ko" label="한국어 화면 설명" default>
+      </video>
+      <img class="hero-poster" src="assets/video-frames/frame-005.png" width="1284" height="720" alt="빙상장에서 여러 사람이 스케이트를 타는 모습">
+      <div class="shell hero-inner">
+        <div class="hero-copy">
+          <h1>내가 고르면,<br>하일릿이 따라온다.</h1>
+          <p>단체 영상에서 나를 골라<br>바로 편집하고 공유하세요.</p>
+          <div class="hero-actions">
+            <a class="btn btn-mint" href="#try">직접 골라보기</a>
+            <button class="hero-pause" id="heroPause" type="button" aria-pressed="false">영상 멈추기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="try-section" id="try" aria-labelledby="try-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 id="try-title">한 사람을 골라 주세요.<br>영상이 끝날 때까지 따라갑니다.</h2>
+          <p>아래 타임라인을 움직인 뒤, 마우스 왼쪽 버튼을 누른 채 따라갈 사람을 드래그해 감싸 주세요.</p>
+        </div>
+        <div class="demo-wrap">
+          <div class="demo-stage" id="demoStage" aria-label="영상에서 추적할 사람을 직접 지정하는 화면">
+            <canvas id="trackingCanvas" width="1284" height="720" aria-label="왼쪽 버튼을 누른 채 드래그해 따라갈 사람을 지정하세요"></canvas>
+            <video id="playbackVideo" src="assets/hilit-demo.mp4" muted playsinline preload="auto" hidden aria-label="추적 결과 재생 영상"></video>
+            <img id="candidateFrame" src="assets/video-frames/frame-005.png" width="1284" height="720" alt="사람을 선택할 영상 장면" hidden>
+            <div id="candidateLayer" aria-label="자동으로 찾은 사람 선택 영역"></div>
+            <p class="stage-note" id="stageNote">타임라인 이동 · 왼쪽 드래그로 지정</p>
+          </div>
+          <aside class="demo-console" aria-label="추적 체험 조작">
+            <div class="scrub-row">
+              <input class="scrubber" id="scrubber" type="range" min="0" max="17" step="0.05" value="0" aria-label="영상 장면 이동">
+              <span class="timecode" id="timecode">00:00 / 00:17</span>
+            </div>
+            <div class="status">
+              <strong id="statusTitle">영상에서 나를 감싸 주세요.</strong>
+              <span id="statusDetail" role="status" aria-live="polite">자동 검출을 쓰거나 직접 드래그할 수 있습니다.</span>
+            </div>
+            <div class="progress" id="progress" hidden aria-label="분석 진행률"><span id="progressBar"></span></div>
+            <div class="demo-actions" id="setupActions">
+              <button class="btn btn-ghost" id="findPeople" type="button">사람 찾기</button>
+              <button class="btn btn-mint" id="startTracking" type="button" disabled>이 사람 따라가기</button>
+            </div>
+            <div id="playbackControls" hidden>
+              <div class="mode-switch" aria-label="결과 보기 방식"><button id="wideMode" type="button" aria-pressed="true">전체 보기</button><button id="focusMode" type="button" aria-pressed="false">나에게 집중</button></div>
+              <div class="playback-actions"><button class="btn btn-mint" id="togglePlayback" type="button">재생</button><button class="btn btn-ghost" id="fullscreenDemo" type="button">전체 화면</button><button class="btn btn-ghost" id="chooseAgain" type="button">다른 사람 고르기</button></div>
+              <p class="result-line" id="resultLine"></p>
+            </div>
+            <p class="error-box" id="errorBox" role="alert" hidden></p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase" id="features" aria-label="하일릿 주요 기능">
+      <article class="split">
+        <div class="split-copy"><h2>영상 어디에서든<br>한 번만 지정하면 됩니다.</h2><p>사람이 많은 장면에서도 원하는 사람을 직접 고를 수 있습니다.</p></div>
+        <figure class="split-visual split-visual--crowd"><img src="assets/video-frames/frame-120.png" width="1284" height="720" loading="lazy" alt="여러 사람이 함께 스케이트를 타는 장면"><span class="focus-box" aria-hidden="true"></span></figure>
+      </article>
+      <article class="split split--reverse">
+        <div class="split-copy"><h2>가려지거나 멀어져도<br>같은 사람인지 다시 봅니다.</h2><p>찾아낸 장면은 앱 안에서 자르고 바로 올립니다.</p></div>
+        <figure class="split-visual split-visual--focus"><img src="assets/video-frames/frame-120.png" width="1284" height="720" loading="lazy" alt="선택한 스케이터에게 화면이 집중된 모습"><div class="moment-strip" aria-label="찾아낸 하이라이트 장면 세 개"><img src="assets/video-frames/frame-005.png" width="1284" height="720" loading="lazy" alt="첫 번째 하이라이트 장면"><img src="assets/video-frames/frame-080.png" width="1284" height="720" loading="lazy" alt="두 번째 하이라이트 장면"><img src="assets/video-frames/frame-120.png" width="1284" height="720" loading="lazy" alt="세 번째 하이라이트 장면"></div></figure>
+      </article>
+    </section>
+
+    <section class="tech-band" id="technology" aria-labelledby="tech-title">
+      <div class="shell">
+        <h2 id="tech-title">움직임은 빠르게 따라갑니다.<br>헷갈릴 때만 다시 찾습니다.</h2>
+        <div class="tech-row">
+          <div class="tech-item"><strong>NanoTrack</strong><span>움직임을 따라갑니다.</span></div>
+          <div class="tech-item"><strong>OSNet</strong><span>같은 사람인지 확인합니다.</span></div>
+          <div class="tech-item"><strong>NanoDet</strong><span>놓친 사람을 다시 찾습니다.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" aria-labelledby="final-title">
+      <img src="assets/video-frames/frame-080.png" width="1284" height="720" loading="lazy" alt="빙상장을 가로지르는 스케이터들">
+      <div class="shell final-cta-inner"><h2 id="final-title">내 장면이<br>먼저다.</h2><a class="btn btn-mint" href="#try">지금 골라보기</a></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell"><p class="footer-line">Highlight,<br>made personal.</p><div class="footer-meta"><img src="assets/hilit-wordmark-transparent.png" width="535" height="165" alt="HILIT"><span>Consumer experience prototype · 2026</span></div></div>
+  </footer>
+  <script type="module" src="experience.js"></script>
+</body>
+</html>

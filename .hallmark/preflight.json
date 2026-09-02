@@ -1,0 +1,15 @@
+{
+  "version": "1.1.0",
+  "created_at": "2026-09-02",
+  "target": "C:/Users/user/GPT/Hilit_LP",
+  "signals": {
+    "hosting": false,
+    "design_md": false,
+    "tailwind": false,
+    "existing_tokens": false,
+    "existing_nav_footer": false,
+    "framework": "vanilla-html"
+  },
+  "mode": "greenfield",
+  "decision": "Custom theme and vanilla HTML/CSS/JS; preserve no pre-existing UI because the target folder was empty."
+}
