@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="40분을 넣으면 내가 주인공인 15초가 나옵니다. 가려졌다 다시 나타나도 같은 사람으로 따라가고, 고를 장면은 직접 고릅니다. 그리고 올리지 않아도 남습니다.">
+  <title>HILIT — 40분을 넣으면, 내가 주인공인 15초가 나옵니다</title>
+  <link rel="icon" href="assets/hilit-app-icon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* LP v1 초안 — docs/LP/HILiT_랜딩페이지_제작계획서_v1_0.md (v1.1) 기준.
+       S0~S11 전 구간. CTA 는 NF-015 승인 전 상태이므로 전부 대기자 등록으로 통일한다. */
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; overflow-x: clip; }
+    html { scroll-behavior: smooth; background: var(--color-paper); }
+    /* word-break: keep-all — 한국어는 기본값이면 음절 아무 데서나 끊긴다. 어절 단위로 묶어야 헤드라인이 읽힌다. */
+    body { min-width: 320px; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); line-height: 1.58; word-break: keep-all; overflow-wrap: break-word; text-rendering: optimizeLegibility; }
+    img, video, canvas { display: block; max-width: 100%; }
+    button, input, select, a { font: inherit; }
+    button, input[type="range"] { cursor: pointer; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+    .skip-link { position: fixed; inset-block-start: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-overlay); transform: translateY(-180%); padding: var(--space-3) var(--space-4); background: var(--color-accent); color: var(--color-accent-ink); font-weight: 700; }
+    .skip-link:focus { transform: none; }
+    .shell { width: min(100%, var(--content-max)); margin-inline: auto; padding-inline: var(--page-gutter); }
+
+    /* 공통 타이포 — 슬랩 헤드라인 한 규칙만 쓰고 섹션마다 재정의하지 않는다. */
+    .h-slab { min-width: 0; margin: 0; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; line-height: .98; letter-spacing: -.045em; }
+    .lede { max-width: 40rem; margin: var(--space-5) 0 0; color: var(--color-muted); font-size: var(--text-lg); }
+    .on-dark .lede { color: var(--color-light-muted); }
+    .kicker { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-4); color: var(--color-muted); font-size: var(--text-xs); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .kicker::before { content: ""; width: 1.75rem; height: var(--rule); background: currentColor; }
+    .on-dark .kicker { color: var(--color-accent); }
+    .section { padding-block: var(--space-section); }
+    .section--compact { padding-block: var(--space-section-compact); }
+    .on-dark { background: var(--color-dark); color: var(--color-light); }
+    .on-paper-2 { background: var(--color-paper-2); }
+    .section-head { display: grid; gap: var(--space-4); margin-block-end: var(--space-7); }
+    /* 섹션 헤드는 2단 안에 들어가므로 히어로보다 한 단 작게 잡는다. 안 그러면 <br> 이 정한 줄바꿈이 무시되고 낱말이 잘린다. */
+    .section-head .h-slab { max-width: 20ch; font-size: clamp(2rem, 3.4vw, 3.9rem); }
+    .section-head p { max-width: 36rem; margin: 0; color: var(--color-muted); font-size: var(--text-lg); }
+    .on-dark .section-head p { color: var(--color-light-muted); }
+    .note { max-width: 44rem; margin: var(--space-6) 0 0; padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
+    .on-dark .note { border-block-start-color: var(--color-ink-2); color: var(--color-light-muted); }
+
+    /* S0 내비 — 로고 카드 그대로. 민트 바탕에 크림 땡땡이. */
+    .site-nav { position: fixed; inset: 0 0 auto; z-index: var(--z-nav); background: var(--color-accent); color: var(--color-accent-ink); border-block-end: var(--rule) solid var(--color-accent-rule); }
+    .site-nav::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--color-dot); -webkit-mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; pointer-events: none; }
+    .nav-inner { position: relative; z-index: 1; min-height: var(--nav-height); display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-4); }
+    .brand { display: inline-flex; align-items: center; min-width: 0; min-height: 2.5rem; text-decoration: none; }
+    .brand img { width: var(--brand-size); height: auto; }
+    .nav-links { display: none; justify-self: center; align-items: center; gap: var(--space-6); }
+    .nav-links a { display: inline-flex; align-items: center; min-height: 2.5rem; color: var(--color-accent-ink); font-size: var(--text-sm); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
+
+    .nav-action, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: var(--space-5); border: var(--rule) solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-ink); color: var(--color-light); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+    .btn-mint { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
+    .btn-ghost { border-color: var(--color-rule); background: var(--color-clear); color: var(--color-ink); }
+    .btn-dark-ghost { border-color: var(--color-ink-2); background: var(--color-clear); color: var(--color-light); }
+    .nav-action { justify-self: end; min-height: 2.5rem; padding-inline: var(--space-4); border-color: var(--color-accent-ink); background: var(--color-dot); color: var(--color-accent-ink); font-size: var(--text-sm); }
+    .btn:active, .nav-action:active { transform: translateY(1px); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    /* 주 CTA 와 보조 행동의 위계를 눈으로 갈라 둔다 — 계획서 §2.2. */
+    .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-block-start: var(--space-6); }
+    .cta-tail { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-block-start: var(--space-7); padding-block-start: var(--space-5); border-block-start: var(--rule) solid var(--color-rule); }
+    .on-dark .cta-tail { border-block-start-color: var(--color-ink-2); }
+    .cta-tail p { margin: 0; max-width: 34rem; color: var(--color-muted); font-size: var(--text-sm); }
+    .on-dark .cta-tail p { color: var(--color-light-muted); }
+
+    /* S1 히어로 — 실증 미디어(§1.4 A안)를 아직 붙일 수 없다.
+       사진 대신 헤드라인이 말하는 40분 → 15초 비율을 그대로 그려 세운다. */
+    .hero { position: relative; margin-block-start: var(--nav-height); overflow: clip; background: var(--color-dark); color: var(--color-light); isolation: isolate; }
+    .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(120% 90% at 12% 8%, oklch(90% 0.069 166 / 0.16), transparent 62%); }
+    .hero-inner { min-height: clamp(38rem, 84dvh, 54rem); display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-8); padding-block: var(--space-hero-top) var(--space-hero-bottom); }
+    .hero h1 { min-width: 0; max-width: 16ch; margin: 0; font-family: var(--font-display); font-size: var(--text-hero); font-weight: 800; line-height: .92; letter-spacing: -.06em; animation: rise var(--dur-long) var(--ease-out) both; }
+    .hero p { max-width: 40rem; margin: var(--space-5) 0 0; color: var(--color-light-muted); font-size: var(--text-lg); font-weight: 500; }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+    .ribbon { margin: 0; }
+    .ribbon-track { position: relative; display: block; height: 3.25rem; border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); background: linear-gradient(90deg, oklch(21% 0.022 165), oklch(18% 0.02 165)); overflow: hidden; }
+    .ribbon-track::before { content: ""; position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, var(--color-ink-2) 0 1px, transparent 1px 5%); opacity: .8; }
+    .ribbon-keep { position: absolute; inset-block: -1px; inset-inline-start: 58%; width: 4.2%; min-width: 6px; background: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 0 2.5rem var(--color-accent-soft); animation: keep-in 900ms var(--ease-out) both 240ms; }
+    @keyframes keep-in { from { inset-inline-start: 0; width: 100%; } to { inset-inline-start: 58%; width: 4.2%; } }
+    .ribbon figcaption { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-3); margin-block-start: var(--space-3); color: var(--color-light-muted); font-size: var(--text-sm); font-weight: 600; }
+    .ribbon figcaption strong { color: var(--color-accent); font-family: var(--font-display); font-size: var(--text-lg); letter-spacing: -.02em; }
+    /* 히어로 실사 미디어 자리. §1.4 A안(성인 참가자 · 촬영·공개 동의 확보) 촬영 전까지 비워 둔다.
+       experience.js 가 데이터 절약 모드에서 .hero-video / .hero-poster 를 찾으므로 요소만 남긴다. */
+    .hero-video, .hero-poster { display: none; }
+
+    /* S2 문제 정의 */
+    .pain-grid { display: grid; gap: var(--space-5); margin-block-start: var(--space-7); }
+    .pain { display: grid; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: 2px solid var(--color-accent); }
+    .pain-no { color: var(--color-accent); font-family: var(--font-display); font-size: var(--text-sm); font-weight: 800; letter-spacing: .12em; }
+    .pain h3 { margin: 0; max-width: 18ch; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1.08; letter-spacing: -.035em; }
+    .pain p { margin: 0; color: var(--color-light-muted); font-size: var(--text-base); }
+
+    /* S3 데모 — 현행 #try 를 그대로 살리고 STEP 표시만 보강한다(계획서 §4 "살릴 것 1개"). */
+    .demo-wrap { display: grid; gap: var(--space-5); min-width: 0; }
+    .demo-stage { position: relative; aspect-ratio: 16 / 9; min-width: 0; overflow: hidden; background: var(--color-dark); border-radius: var(--radius-md); }
+    .demo-stage canvas, .demo-stage video, .demo-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--color-dark); }
+    #trackingCanvas { cursor: crosshair; touch-action: none; }
+    #candidateLayer { position: absolute; inset: 0; z-index: var(--z-content); pointer-events: none; }
+    .candidate-btn { position: absolute; min-width: 44px; min-height: 44px; padding: 0; pointer-events: auto; border: 3px solid var(--color-accent); background: var(--color-clear); color: var(--color-accent-ink); transition: background-color var(--dur-short) var(--ease-out); }
+    .candidate-btn::after { content: attr(data-label); position: absolute; inset-block-start: -3px; inset-inline-start: -3px; padding: var(--space-1) var(--space-2); background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-xs); font-weight: 800; line-height: 1; }
+    .candidate-btn[aria-pressed="true"] { background: var(--color-accent-soft); }
+    .candidate-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .stage-badge { position: absolute; inset-block-start: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-content); padding: var(--space-2) var(--space-3); background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-xs); font-weight: 800; letter-spacing: .06em; pointer-events: none; }
+    .stage-note { position: absolute; inset-block-end: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-content); margin: 0; padding: var(--space-2) var(--space-3); background: var(--color-overlay-heavy); color: var(--color-light); font-size: var(--text-xs); font-weight: 700; pointer-events: none; }
+    .reticle { position: absolute; z-index: var(--z-content); border: 3px solid var(--color-accent); pointer-events: none; }
+    .demo-console { display: grid; gap: var(--space-4); align-content: start; }
+    .scrub-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); }
+    .scrubber { width: 100%; min-height: 44px; accent-color: var(--color-focus); }
+    .timecode { min-width: 5.5rem; text-align: end; color: var(--color-muted); font-variant-numeric: tabular-nums; }
+    .status { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); min-height: 4.5rem; padding-block: var(--space-4); border-block: var(--rule) solid var(--color-rule); }
+    .status-mark { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; background: var(--color-ink); color: var(--color-light); font-family: var(--font-display); font-size: var(--text-sm); font-weight: 800; }
+    .status-text strong, .status-text span { display: block; }
+    .status-text strong { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.2; }
+    .status-text span { margin-block-start: var(--space-1); color: var(--color-muted); font-size: var(--text-sm); }
+    .progress { height: .35rem; background: var(--color-paper-3); overflow: hidden; }
+    .progress span { display: block; width: 100%; height: 100%; background: var(--color-accent-strong); transform: scaleX(0); transform-origin: left center; }
+    .demo-actions, .playback-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .mode-switch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: var(--rule) solid var(--color-rule); }
+    .mode-switch button { min-height: 3rem; border: 0; background: var(--color-clear); color: var(--color-muted); font-weight: 700; white-space: nowrap; }
+    .mode-switch button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-light); }
+    .mode-switch button:disabled { opacity: .5; cursor: not-allowed; }
+    .result-line { margin: 0; color: var(--color-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+    .error-box { margin: 0; padding: var(--space-3); background: var(--color-error-light); color: var(--color-error); font-size: var(--text-sm); font-weight: 700; }
+
+    /* S4 가치 제안 — 기능이 아니라 결과 문장을 크게 세운다. */
+    .result-list { display: grid; gap: 0; margin: var(--space-7) 0 0; padding: 0; list-style: none; }
+    .result-list li { display: grid; gap: var(--space-2); padding-block: var(--space-5); border-block-start: var(--rule) solid var(--color-rule); }
+    .result-list li:last-child { border-block-end: var(--rule) solid var(--color-rule); }
+    .result-list strong { max-width: 24ch; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1.08; letter-spacing: -.035em; }
+    .result-list span { color: var(--color-muted); font-size: var(--text-sm); }
+
+    /* S5 작동 방식 */
+    .steps { display: grid; gap: var(--space-5); margin-block-start: var(--space-7); counter-reset: step; padding: 0; list-style: none; }
+    .steps li { counter-increment: step; display: grid; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); }
+    .steps li::before { content: "0" counter(step); color: var(--color-accent-strong); font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+    .steps h3 { margin: 0; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; letter-spacing: -.02em; }
+    .steps p { margin: 0; color: var(--color-muted); font-size: var(--text-base); }
+
+    /* S6 완성한 다음 — 세 블록이 사용자가 겪는 순서 그대로다. */
+    .after { display: grid; gap: var(--space-8); margin-block-start: var(--space-7); }
+    .after-block { display: grid; gap: var(--space-5); align-items: start; padding-block-start: var(--space-5); border-block-start: 2px solid var(--color-accent); }
+    .after-copy h3 { margin: 0 0 var(--space-3); max-width: 20ch; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1.06; letter-spacing: -.035em; }
+    .after-copy p { margin: 0 0 var(--space-3); color: var(--color-light-muted); }
+    .after-copy p:last-child { margin-block-end: 0; }
+    .after-copy em { color: var(--color-accent); font-style: normal; font-weight: 700; }
+
+    .mock { display: grid; gap: var(--space-3); padding: var(--space-5); border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-md); background: var(--color-dark-2); }
+    .mock-cap { margin: 0; color: var(--color-light-muted); font-size: var(--text-xs); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .scope-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2); }
+    .scope-opt { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); color: var(--color-light-muted); font-size: var(--text-sm); font-weight: 700; }
+    .scope-opt.is-on { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
+    .tabs-row { display: flex; gap: var(--space-4); padding-block-end: var(--space-3); border-block-end: var(--rule) solid var(--color-ink-2); font-size: var(--text-sm); font-weight: 700; color: var(--color-light-muted); }
+    .tabs-row .is-on { color: var(--color-accent); box-shadow: 0 var(--space-3) 0 -.65rem var(--color-accent); }
+    .feed-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+    .feed-tile { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); background: oklch(26% 0.024 165); }
+    .feed-tile::after { content: ""; position: absolute; inset: 0; background: var(--color-accent); opacity: .22; -webkit-mask: url("assets/dot-pattern.svg") 0 0 / 96px 24px repeat; mask: url("assets/dot-pattern.svg") 0 0 / 96px 24px repeat; }
+    .tabbar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-3); padding-block-start: var(--space-3); border-block-start: var(--rule) solid var(--color-ink-2); }
+    .tabbar-row i { display: block; height: .4rem; border-radius: var(--radius-sm); background: var(--color-ink-2); }
+    .tabbar-plus { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-accent-ink); font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; }
+    .mini-row { display: grid; gap: var(--space-2); padding: var(--space-3); border: var(--rule) solid var(--color-accent-rule); border-radius: var(--radius-sm); background: var(--color-dark); }
+    .mini-row b { color: var(--color-accent); font-size: var(--text-sm); }
+    .mini-track { display: block; height: .35rem; border-radius: var(--radius-sm); background: var(--color-ink-2); overflow: hidden; }
+    .mini-track i { display: block; width: 46%; height: 100%; background: var(--color-accent); }
+
+    /* S7 신뢰의 증거 */
+    .evidence { display: grid; gap: var(--space-6); margin-block-start: var(--space-7); }
+    .evi { display: grid; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); }
+    .evi h3 { margin: 0; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; letter-spacing: -.02em; }
+    .evi p { margin: 0; color: var(--color-muted); }
+    .lic { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    .lic caption { margin-block-end: var(--space-2); color: var(--color-muted); font-size: var(--text-xs); text-align: start; }
+    .lic th, .lic td { padding: var(--space-3) var(--space-2); border-block-end: var(--rule) solid var(--color-rule); text-align: start; }
+    .lic th { color: var(--color-muted); font-size: var(--text-xs); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .lic td:first-child { font-weight: 700; }
+    .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-3); }
+    .flow-node { flex: 1 1 12rem; padding: var(--space-4); border: var(--rule) solid var(--color-rule); border-radius: var(--radius-sm); }
+    .flow-node strong { display: block; font-family: var(--font-display); font-size: var(--text-base); }
+    .flow-node span { display: block; margin-block-start: var(--space-2); color: var(--color-muted); font-size: var(--text-sm); }
+    .flow-node--near { border-color: var(--color-accent-strong); background: var(--color-accent-soft); }
+
+    /* S8 요금 */
+    .plans { display: grid; gap: var(--space-5); margin-block-start: var(--space-7); }
+    .plan { display: grid; gap: var(--space-4); align-content: start; padding: var(--space-6); border: var(--rule) solid var(--color-rule); border-radius: var(--radius-md); background: var(--color-paper); }
+    .plan--paid { border-color: var(--color-ink); }
+    .plan-name { margin: 0; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; }
+    .plan-price { margin: 0; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; letter-spacing: -.04em; }
+    .plan-price small { display: block; margin-block-start: var(--space-2); color: var(--color-muted); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; letter-spacing: normal; }
+    .plan ul { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; font-size: var(--text-sm); }
+    .plan li { padding-inline-start: var(--space-5); position: relative; }
+    .plan li::before { content: ""; position: absolute; inset-inline-start: 0; inset-block-start: .55em; width: .6rem; height: .6rem; background: var(--color-accent-strong); }
+    .plan li[data-shared]::before { background: var(--color-rule); }
+
+    /* S9 FAQ */
+    .faq { display: grid; gap: 0; margin-block-start: var(--space-7); }
+    .faq details { border-block-start: var(--rule) solid var(--color-rule); }
+    .faq details:last-of-type { border-block-end: var(--rule) solid var(--color-rule); }
+    .faq summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 4rem; padding-block: var(--space-4); cursor: pointer; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; letter-spacing: -.02em; list-style: none; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "+"; flex: none; color: var(--color-accent-strong); font-size: var(--text-xl); line-height: 1; }
+    .faq details[open] summary::after { content: "–"; }
+    .faq p { margin: 0 0 var(--space-5); max-width: 46rem; color: var(--color-muted); }
+
+    /* S10 최종 CTA + 대기자 폼 */
+    .final { position: relative; overflow: clip; }
+    .final::before { content: ""; position: absolute; inset: 0; z-index: 0; background: radial-gradient(90% 70% at 82% 12%, oklch(90% 0.069 166 / 0.14), transparent 60%); }
+    .final .shell { position: relative; z-index: 1; }
+    .final h2 { max-width: 15ch; font-size: var(--text-2xl); }
+    .waitlist { display: grid; gap: var(--space-4); max-width: 34rem; margin-block-start: var(--space-7); }
+    .field { display: grid; gap: var(--space-2); }
+    .field label { font-size: var(--text-sm); font-weight: 700; }
+    .field input[type="email"] { min-height: 3rem; padding-inline: var(--space-4); border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); background: var(--color-dark-2); color: var(--color-light); }
+    .field input[type="email"]::placeholder { color: var(--color-light-muted); }
+    .consent { display: flex; align-items: flex-start; gap: var(--space-3); color: var(--color-light-muted); font-size: var(--text-sm); }
+    .consent input { flex: none; width: 1.15rem; height: 1.15rem; margin-block-start: .22rem; accent-color: var(--color-accent-strong); }
+    .consent a { text-underline-offset: .2em; }
+    .form-note { margin: 0; color: var(--color-light-muted); font-size: var(--text-xs); }
+    .form-status { margin: 0; padding: var(--space-3) var(--space-4); border: var(--rule) solid var(--color-accent); border-radius: var(--radius-sm); background: var(--color-accent-soft); color: var(--color-light); font-size: var(--text-sm); font-weight: 600; }
+    /* E-5 대기자 수 카운터. 노출 하한이 정해지기 전에는(LP-Q3) 띄우지 않는다 — 낮은 숫자는 증거가 아니라 역효과다. */
+    .waiting-count { margin: var(--space-5) 0 0; color: var(--color-accent); font-size: var(--text-sm); font-weight: 700; }
+
+    /* S11 푸터 */
+    .footer { padding-block: var(--space-8) var(--space-5); background: var(--color-paper); }
+    .footer-line { max-width: 20ch; margin: 0; font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; line-height: .98; letter-spacing: -.045em; }
+    .footer-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-block-start: var(--space-7); padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
+    .footer-meta img { width: 7rem; height: auto; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+    .footer-links a { text-underline-offset: .25em; }
+    .draft-flag { margin: var(--space-5) 0 0; color: var(--color-muted); font-size: var(--text-xs); }
+
+    @media (hover: hover) and (pointer: fine) {
+      .nav-links a:hover { color: var(--color-focus); }
+      .nav-action:hover, .btn:hover { transform: translateY(-1px); }
+      .btn-mint:hover { background: var(--color-accent-strong); }
+      .btn-ghost:hover { background: var(--color-paper-3); }
+      .btn-dark-ghost:hover { background: var(--color-dark-2); }
+      .candidate-btn:hover { background: var(--color-accent-soft); }
+      .mode-switch button:hover { background: var(--color-paper-3); color: var(--color-ink); }
+      .faq summary:hover { color: var(--color-focus); }
+    }
+    @media (min-width: 40rem) {
+      .section-head { grid-template-columns: minmax(0, 1.35fr) minmax(17rem, .65fr); align-items: end; }
+      .pain-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow-node { flex-basis: 0; }
+    }
+    @media (min-width: 60rem) {
+      .nav-inner { grid-template-columns: auto 1fr auto; }
+      .nav-links { display: flex; }
+      .demo-wrap { grid-template-columns: minmax(0, 1.55fr) minmax(18rem, .45fr); align-items: start; }
+      .demo-console { position: sticky; top: calc(var(--nav-height) + var(--space-5)); }
+      .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .after-block { grid-template-columns: minmax(0, 1.1fr) minmax(16rem, .9fr); gap: var(--space-7); }
+      .after-block--flip .after-copy { order: 2; }
+      .after-block--flip .mock { order: 1; }
+      .evidence { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+      .result-list li { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: baseline; gap: var(--space-6); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+
+  <!-- S0 · 고정 내비 — 스크롤 내내 주 CTA 노출 -->
+  <header class="site-nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
+      <nav class="nav-links" aria-label="주요 메뉴"><a href="#problem">문제</a><a href="#try">직접 체험</a><a href="#how">작동 방식</a><a href="#pricing">요금</a></nav>
+      <a class="nav-action" href="#waitlist">가장 먼저 써보기</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- S1 · 히어로 -->
+    <section class="hero" id="top">
+      <!-- §1.4 A안(성인 참가자 · 촬영·공개 동의 확보) 촬영 전까지 실사 미디어를 걸지 않는다.
+           요소만 남겨 두는 이유는 experience.js 의 데이터 절약 분기가 이 둘을 참조하기 때문이다. -->
+      <video class="hero-video" muted playsinline preload="none" hidden aria-hidden="true"></video>
+      <img class="hero-poster" alt="" width="1284" height="720" hidden aria-hidden="true">
+      <div class="shell hero-inner">
+        <div class="hero-copy">
+          <p class="kicker">개인 하이라이트</p>
+          <h1>40분을 넣으면,<br>내가 주인공인<br>15초가 나옵니다</h1>
+          <p>긴 영상에서 내가 나온 구간만 잘라내고, 가려졌다 다시 나타나도 같은 사람으로 따라갑니다. 고를 장면은 직접 고르고, 올릴지는 나중에 정하시면 됩니다.</p>
+          <div class="cta-row">
+            <a class="btn btn-mint" href="#waitlist">가장 먼저 써보기</a>
+            <a class="btn btn-dark-ghost" href="#try">먼저 체험해보기</a>
+          </div>
+        </div>
+        <figure class="ribbon">
+          <span class="ribbon-track" aria-hidden="true"><span class="ribbon-keep"></span></span>
+          <figcaption><span>원본 40분 — 대부분은 내가 없는 시간입니다</span><strong>남기는 것 15초</strong></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- S2 · 문제 정의 -->
+    <section class="section section--compact on-dark" id="problem" aria-labelledby="problem-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="problem-title">원본은 쌓이는데,<br>남는 건 없습니다.</h2>
+          <p>영상을 찍는 사람은 늘었는데, 찍은 영상에서 자기 장면을 꺼내 오는 일은 여전히 사람 손입니다.</p>
+        </div>
+        <div class="pain-grid">
+          <article class="pain">
+            <span class="pain-no">PAIN 01</span>
+            <h3>내 장면을 찾는 데 편집보다 오래 걸립니다</h3>
+            <p>고정 카메라는 경기를 담지만, 누가 어디에 있었는지는 기록하지 않습니다. 그래서 찾는 일이 통째로 사람에게 남습니다.</p>
+          </article>
+          <article class="pain">
+            <span class="pain-no">PAIN 02</span>
+            <h3>화면 구석에 작게 잡혀 있습니다</h3>
+            <p>카메라는 사람을 따라오지 않습니다. 앞의 문제와 원인이 같습니다 — 카메라가 사람의 위치를 모릅니다.</p>
+          </article>
+          <article class="pain">
+            <span class="pain-no">PAIN 03</span>
+            <h3>공개할 자신이 없으면 기록도 남지 않습니다</h3>
+            <p>지금의 서비스들은 올려야 남는 구조입니다. 올릴 자신이 없는 장면은 원본 폴더에서 그대로 잊힙니다.</p>
+          </article>
+        </div>
+        <p class="note">사전 인터뷰 대상 6명에게 공통으로 나타난 어려움입니다. 시장 전체를 대표하는 수치가 아니라, 저희가 실제로 들은 이야기입니다.</p>
+        <!-- LP-Q6 미결 — Pain 수치(탐색 60분 이상 · 원본→완성 전환 약 4% · 비공개 기록 0%)를 [HYPOTHESIS] 표기로 노출할지 미정.
+             노출 결정이 나면 각 .pain 에 수치 줄을 추가한다. 지금은 표기하지 않는다. -->
+      </div>
+    </section>
+
+    <!-- S3 · 직접 체험 데모 — 지금 가진 증거 중 가장 강한 것(E-1) -->
+    <section class="section" id="try" aria-labelledby="try-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="try-title">한 사람을 골라 주세요.<br>영상이 끝날 때까지 따라갑니다.</h2>
+          <p>믿어 달라고 말하는 대신, 직접 해 보시라고 만들었습니다. 설치도 가입도 없이 이 페이지 안에서, 브라우저에서 그대로 돕니다.</p>
+        </div>
+        <div class="demo-wrap">
+          <div class="demo-stage" id="demoStage" aria-label="영상에서 추적할 사람을 직접 지정하는 화면">
+            <canvas id="trackingCanvas" width="1284" height="720" aria-label="왼쪽 버튼을 누른 채 드래그해 따라갈 사람을 지정하세요"></canvas>
+            <video id="playbackVideo" src="assets/hilit-demo.mp4" muted playsinline preload="auto" hidden aria-label="추적 결과 재생 영상"></video>
+            <img id="candidateFrame" src="assets/video-frames/frame-005.png" width="1284" height="720" alt="사람을 선택할 영상 장면" hidden>
+            <div id="candidateLayer" aria-label="자동으로 찾은 사람 선택 영역"></div>
+            <div class="reticle" id="trackingReticle" hidden aria-hidden="true"></div>
+            <span class="stage-badge" id="stageBadge">STEP 1 · 장면 고르기</span>
+            <p class="stage-note" id="stageNote">타임라인 이동 · 왼쪽 드래그로 지정</p>
+          </div>
+          <aside class="demo-console" aria-label="추적 체험 조작">
+            <div class="scrub-row">
+              <input class="scrubber" id="scrubber" type="range" min="0" max="17" step="0.05" value="0" aria-label="영상 장면 이동">
+              <span class="timecode" id="timecode">00:00 / 00:17</span>
+            </div>
+            <div class="status">
+              <span class="status-mark" id="statusMark" aria-hidden="true">1</span>
+              <div class="status-text">
+                <strong id="statusTitle">영상에서 나를 감싸 주세요.</strong>
+                <span id="statusDetail" role="status" aria-live="polite">자동 검출을 쓰거나 직접 드래그할 수 있습니다.</span>
+              </div>
+            </div>
+            <div class="progress" id="progress" hidden aria-label="분석 진행률"><span id="progressBar"></span></div>
+            <div class="demo-actions" id="setupActions">
+              <button class="btn btn-ghost" id="findPeople" type="button">사람 찾기</button>
+              <button class="btn btn-mint" id="startTracking" type="button" disabled>이 사람 따라가기</button>
+            </div>
+            <div id="playbackControls" hidden>
+              <div class="mode-switch" aria-label="결과 보기 방식"><button id="wideMode" type="button" aria-pressed="true">전체 보기</button><button id="focusMode" type="button" aria-pressed="false">나에게 집중</button></div>
+              <div class="playback-actions"><button class="btn btn-mint" id="togglePlayback" type="button">재생</button><button class="btn btn-ghost" id="fullscreenDemo" type="button">전체 화면</button><button class="btn btn-ghost" id="chooseAgain" type="button">다른 사람 고르기</button></div>
+              <p class="result-line" id="resultLine"></p>
+            </div>
+            <p class="error-box" id="errorBox" role="alert" hidden></p>
+          </aside>
+        </div>
+        <div class="cta-tail">
+          <a class="btn" href="#waitlist">내 영상으로 해보기</a>
+          <p>지금 돌아간 추적은 실제 제품이 쓰는 것과 같은 모델입니다. 다만 내 영상을 넣는 것은 앱에서만 됩니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S4 · 가치 제안 — 기능이 아니라 결과 -->
+    <section class="section on-paper-2" id="value" aria-labelledby="value-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="value-title">코트에는<br>말하는 사람이 없습니다.</h2>
+          <p>카메라는 누구를 따라가야 할지 듣지 못합니다. 그 한 사람을 정하는 일만 사람이 하고, 나머지를 하일릿이 합니다.</p>
+        </div>
+        <ul class="result-list">
+          <li><strong>가려졌다 다시 나타나도, 같은 사람으로 따라갑니다.</strong><span>사람이 앞을 지나가거나 화면 밖으로 나갔다 들어와도 다시 이어 붙입니다.</span></li>
+          <li><strong>코트 구석에 작게 잡힌 나를, 화면 가운데로.</strong><span>따라간 위치를 기준으로 구도를 다시 잡습니다.</span></li>
+          <li><strong>&ldquo;3점 넣는 장면&rdquo;이라고 말하면, 그 구간만 잘라 옵니다.</strong><span>어디쯤인지 몰라도 됩니다. 말로 찾습니다.</span></li>
+          <li><strong>어느 순간이 특별했는지는 내가 압니다. 고르는 건 사람이 합니다.</strong><span>후보를 보여드리고, 확정은 직접 하십니다. 자동으로 올라가지 않습니다.</span></li>
+          <li><strong>영상은 기본적으로 내 기기에서 처리됩니다.</strong><span>추적이 흔들린 구간만 서버로 보냅니다. 전부 올리지 않습니다.</span></li>
+          <li><strong>전용 카메라나 팀 계약이 필요 없습니다.</strong><span>이미 찍어 둔 영상과 쓰던 휴대폰이면 됩니다.</span></li>
+        </ul>
+        <div class="cta-tail">
+          <a class="btn" href="#waitlist">가장 먼저 써보기</a>
+          <p>가입은 아직 열지 않았습니다. 지금은 열리는 순서를 잡아 두시는 단계입니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S5 · 작동 방식 ① 만들기 -->
+    <section class="section section--compact" id="how" aria-labelledby="how-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="how-title">원본 하나를 넣으면<br>네 단계로 지나갑니다.</h2>
+          <p>어디서 무엇이 일어나는지 알 수 있어야 맡길 수 있다고 생각합니다.</p>
+        </div>
+        <ol class="steps">
+          <li><h3>자릅니다</h3><p>&ldquo;3점 넣는 장면&rdquo;처럼 말하면 그 구간만 찾아 잘라 옵니다.</p></li>
+          <li><h3>따라갑니다</h3><p>한 번 지정하면 끝까지 따라갑니다. 가려졌다 다시 나타나도 같은 사람인지 다시 봅니다.</p></li>
+          <li><h3>고릅니다</h3><p>찾아낸 후보를 늘어놓습니다. 무엇을 남길지는 직접 정하십니다.</p></li>
+          <li><h3>완성합니다</h3><p>자막을 넣고, 저작권이 정리된 곡을 앱 안에서 얹어 마무리합니다.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- S6 · 완성한 다음 — 남기고, 나누고, 돌아온다 -->
+    <section class="section on-dark" id="after" aria-labelledby="after-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="after-title">완성한 다음에도<br>갈 곳이 있습니다.</h2>
+          <p>한 편 만들고 끝나는 도구가 아닙니다. 만든 것이 남고, 남은 것을 보러 다시 오게 되는 구조입니다.</p>
+        </div>
+        <div class="after">
+          <article class="after-block">
+            <div class="after-copy">
+              <h3>남습니다 — 올리지 않아도</h3>
+              <p>완성하면 공개 여부와 상관없이 내 자리에 쌓입니다. <em>공개 범위는 공개와 나만 보기 두 가지이고, 기본값은 나만 보기</em>입니다.</p>
+              <p>좋아요도, 밖으로 보낸 공유 링크도 그 기록에 걸어 둔 공개 범위를 그대로 따릅니다. 한 곳에서 바꾸면 전부 같이 바뀝니다.</p>
+            </div>
+            <div class="mock">
+              <p class="mock-cap">공개 범위</p>
+              <div class="scope-row" aria-hidden="true"><span class="scope-opt">공개</span><span class="scope-opt is-on">나만 보기</span></div>
+              <p class="mock-cap">기본값 · 언제든 바꿀 수 있습니다</p>
+            </div>
+          </article>
+
+          <article class="after-block after-block--flip">
+            <div class="after-copy">
+              <h3>돌아옵니다 — 앱을 열면 볼 것이 있습니다</h3>
+              <p>팔로잉과 추천 두 탭, 가운데 <em>+</em>가 편집입니다. 앱을 열면 팔로잉 탭이 바로 재생됩니다.</p>
+              <p>가까운 사람들이 서로의 장면을 봅니다. 팔로우하고, 좋아요를 누르고, 댓글을 답니다. 앱 밖으로 링크를 보내도 공개 범위는 따라갑니다.</p>
+            </div>
+            <div class="mock">
+              <p class="mock-cap">앱 화면</p>
+              <div class="tabs-row" aria-hidden="true"><span class="is-on">팔로잉</span><span>추천</span></div>
+              <div class="feed-row" aria-hidden="true"><span class="feed-tile"></span><span class="feed-tile"></span><span class="feed-tile"></span></div>
+              <div class="tabbar-row" aria-hidden="true"><i></i><span class="tabbar-plus">+</span><i></i></div>
+            </div>
+          </article>
+
+          <article class="after-block">
+            <div class="after-copy">
+              <h3>기다리는 동안에도 — 묶여 있지 않습니다</h3>
+              <p>자르고 따라가는 동안 화면을 지켜보지 않아도 됩니다. 위쪽에 진행 상태만 남기고 피드를 보시면 되고, 끝나면 탭 한 번으로 이어갈 자리로 돌아옵니다. 억지로 화면을 바꾸지 않습니다.</p>
+              <p>다만 <em>마지막으로 영상을 만들어 내는 단계는 예외</em>입니다. 이때 화면을 벗어나면 결과가 남지 않습니다. 그 단계에서만 따로 알려 드립니다.</p>
+              <p>이 동작은 무료와 구독 모두 같습니다.</p>
+            </div>
+            <div class="mock">
+              <p class="mock-cap">진행 미니바</p>
+              <div class="mini-row" aria-hidden="true"><b>따라가는 중</b><span class="mini-track"><i></i></span></div>
+              <div class="feed-row" aria-hidden="true"><span class="feed-tile"></span><span class="feed-tile"></span><span class="feed-tile"></span></div>
+              <p class="mock-cap">그동안 피드는 그대로 봅니다</p>
+            </div>
+          </article>
+        </div>
+        <div class="cta-tail">
+          <a class="btn btn-mint" href="#waitlist">여기에 내 기록 쌓기</a>
+          <p>한 번 쓰고 마는 것이 아니라 쌓이는 쪽으로 만들고 있습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S7 · 신뢰의 증거 -->
+    <section class="section section--compact" id="evidence" aria-labelledby="evidence-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="evidence-title">지금 보여드릴 수 있는<br>것만 적었습니다.</h2>
+          <p>사용자 수도, 별점도, 처리 속도 수치도 아직 없습니다. 없는 숫자를 그럴듯하게 채우는 대신 비워 두었습니다. 대신 지금 직접 확인하실 수 있는 것을 놓았습니다.</p>
+        </div>
+        <div class="evidence">
+          <article class="evi">
+            <h3>직접 돌려 보실 수 있습니다</h3>
+            <p>위의 체험은 시연 영상이 아니라 실제 추적입니다. 이 페이지에서 브라우저가 직접 돌립니다.</p>
+            <p><a href="#try">체험으로 돌아가기</a></p>
+          </article>
+          <article class="evi">
+            <h3>무엇을 쓰는지 밝힙니다</h3>
+            <table class="lic">
+              <caption>추적에 쓰는 공개 모델과 라이선스</caption>
+              <thead><tr><th scope="col">모델</th><th scope="col">라이선스</th></tr></thead>
+              <tbody>
+                <tr><td>NanoTrack v2</td><td>Apache-2.0</td></tr>
+                <tr><td>NanoDet</td><td>Apache-2.0</td></tr>
+                <tr><td>OSNet</td><td>MIT</td></tr>
+                <!-- Cutie 라이선스는 저장소 README 에 근거가 없어 단정하지 않는다. 확인되면 채운다. -->
+                <tr><td>Cutie</td><td>확인 중</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="evi">
+            <h3>영상이 어디에서 처리되는지 밝힙니다</h3>
+            <div class="flow">
+              <div class="flow-node flow-node--near"><strong>내 기기</strong><span>기본 처리. 원본은 여기 머뭅니다.</span></div>
+              <div class="flow-node"><strong>서버</strong><span>추적이 흔들린 구간만 보냅니다.</span></div>
+            </div>
+            <p>&ldquo;서버에 전혀 올리지 않는다&rdquo;고는 말씀드리지 않겠습니다. 사실이 아니기 때문입니다.</p>
+          </article>
+        </div>
+        <!-- E-5 대기자 카운터. LP-Q3(노출 하한) 확정 전까지 hidden 유지.
+             <p class="waiting-count" hidden>지금까지 000명이 기다리고 있습니다</p> -->
+      </div>
+    </section>
+
+    <!-- S8 · 요금 -->
+    <section class="section section--compact on-paper-2" id="pricing" aria-labelledby="pricing-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="pricing-title">무료로도<br>한 편이 완성됩니다.</h2>
+          <p>요금제가 가르는 것은 직접 하는 시간뿐입니다. 기록도, 피드도, 관계도 무료에서 전부 씁니다.</p>
+        </div>
+        <div class="plans">
+          <article class="plan">
+            <h3 class="plan-name">무료 · 수동 편집기</h3>
+            <p class="plan-price">0원<small>체험판이 아니라, 여기서 영상이 끝까지 완성됩니다</small></p>
+            <ul>
+              <li>가입 첫 달 5편, 이후 매달 2편</li>
+              <li>1편당 20분까지</li>
+              <li>자동 추적은 월 1회</li>
+              <li data-shared>기록 저장 · 공개 범위 설정</li>
+              <li data-shared>피드 · 팔로우 · 좋아요 · 댓글 · 공유</li>
+              <li data-shared>기다리는 동안 다른 화면 보기</li>
+            </ul>
+          </article>
+          <article class="plan plan--paid">
+            <h3 class="plan-name">구독</h3>
+            <p class="plan-price">월 9,900원<small>손이 더 가는 일을 대신 맡기는 값입니다</small></p>
+            <ul>
+              <li>매달 3편</li>
+              <li>1편당 20분까지</li>
+              <li data-shared>기록 저장 · 공개 범위 설정</li>
+              <li data-shared>피드 · 팔로우 · 좋아요 · 댓글 · 공유</li>
+              <li data-shared>기다리는 동안 다른 화면 보기</li>
+            </ul>
+          </article>
+        </div>
+        <p class="note">한도를 넘겨 쓰는 몫의 값은 아직 정하지 않았습니다. 정해지면 이 자리에 적겠습니다.</p>
+        <div class="cta-tail">
+          <a class="btn" href="#waitlist">가장 먼저 써보기</a>
+          <p>가입이 열리면 무료로 시작하실 수 있습니다. 지금은 순서만 받고 있습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- S9 · FAQ -->
+    <section class="section section--compact" id="faq" aria-labelledby="faq-title">
+      <div class="shell">
+        <div class="section-head">
+          <h2 class="h-slab" id="faq-title">먼저 물어보실<br>것 같은 것들.</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>제 영상이 서버로 올라가나요?</summary>
+            <p>기본은 내 기기에서 처리합니다. 다만 추적이 흔들려 스스로 회복하지 못하는 구간이 생기면 그 구간만 서버로 보내 다시 잡습니다. 전부 올리지도, 전혀 안 올리지도 않습니다. 어느 쪽인지 흐리게 말하지 않으려고 이렇게 적습니다.</p>
+          </details>
+          <details>
+            <summary>왜 지금은 가입이 안 되나요?</summary>
+            <p>미성년 이용자를 어떻게 보호할지에 대한 방침을 확정하는 중입니다. 이 방침이 정리되기 전에는 초대를 포함해 가입을 열지 않기로 했습니다. 그래서 지금은 대기자 등록만 받습니다. 열리는 대로 등록해 주신 순서대로 알려 드립니다.</p>
+          </details>
+          <details>
+            <summary>만든 영상은 꼭 공개해야 하나요?</summary>
+            <p>아닙니다. 공개 범위는 공개와 나만 보기 두 가지이고 <strong>기본값이 나만 보기</strong>입니다. 완성하면 공개 여부와 상관없이 내 자리에 저장됩니다. 좋아요와 공유 링크도 그 기록의 공개 범위를 따르기 때문에, 나만 보기로 둔 기록이 다른 경로로 새어 나가지 않습니다.</p>
+          </details>
+          <details>
+            <summary>어떤 영상에서 되나요?</summary>
+            <p>사람이 여럿 있는 실내 코트 영상을 기준으로 만들고 있습니다. 고정된 자리에서 찍은 40분 안팎의 원본을 가장 먼저 맞추고 있고, 어디까지 넓힐지는 첫 사용자분들의 영상을 보면서 정하려 합니다. 지금 되는 범위를 실제보다 넓게 말씀드리지 않겠습니다.</p>
+            <!-- LP-Q5 미결 — 첫 카테고리를 농구로 명시할지 확정 전. 확정되면 이 답변을 종목명으로 좁힌다. -->
+          </details>
+          <details>
+            <summary>영상에 다른 사람이 같이 나오는데 괜찮나요?</summary>
+            <p>여기가 저희가 가장 조심하는 지점입니다. 얼굴이 담긴 영상을 어떻게 다룰지, 특히 미성년자가 담긴 영상을 공개 경로에 올릴 때 무엇을 먼저 확인해야 하는지 정리하는 중입니다. 정리가 끝나기 전에는 공개 발행 기능을 열지 않습니다.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- S10 · 최종 CTA + 대기자 등록 -->
+    <section class="section on-dark final" id="waitlist" aria-labelledby="waitlist-title">
+      <div class="shell">
+        <p class="kicker">대기자 등록</p>
+        <h2 class="h-slab" id="waitlist-title">40분은 이미 찍혀 있습니다.<br>남길 15초만 아직입니다.</h2>
+        <p class="lede">가입이 열리면 등록해 주신 순서대로 알려 드립니다. 열리기 전에는 아무것도 보내지 않습니다.</p>
+
+        <form class="waitlist" id="waitlistForm" novalidate>
+          <div class="field">
+            <label for="waitlistEmail">이메일</label>
+            <input type="email" id="waitlistEmail" name="email" autocomplete="email" required placeholder="name@example.com">
+          </div>
+          <!-- LP-Q4 미결 — 이메일 외 수집 항목(종목 · 원본 보유 여부)은 법무 확인 전까지 넣지 않는다.
+          <div class="field">
+            <label for="waitlistSport">주로 찍는 종목 (선택)</label>
+            <select id="waitlistSport" name="sport"><option value="">선택 안 함</option></select>
+          </div>
+          -->
+          <label class="consent">
+            <input type="checkbox" id="waitlistConsent" name="consent" required>
+            <span>가입 안내를 받기 위해 이메일을 수집하는 데 동의합니다. 안내 목적 외에는 쓰지 않고, 언제든 <a href="#footer">삭제를 요청</a>하실 수 있습니다.</span>
+          </label>
+          <div class="cta-row" style="margin-block-start: 0;">
+            <button class="btn btn-mint" type="submit">가장 먼저 써보기</button>
+          </div>
+          <p class="form-note">개인정보 처리방침은 준비 중입니다. 확정되면 이 자리에 링크를 겁니다.</p>
+        </form>
+        <p class="form-status" id="waitlistStatus" hidden role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- S11 · 푸터 -->
+  <footer class="footer" id="footer">
+    <div class="shell">
+      <p class="footer-line">Highlight,<br>made personal.</p>
+      <div class="footer-meta">
+        <img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT">
+        <nav class="footer-links" aria-label="법적 고지"><a href="#faq">개인정보 처리방침 (준비 중)</a><a href="#faq">이용약관 (준비 중)</a><a href="#waitlist">문의</a></nav>
+      </div>
+      <p class="draft-flag">LP v1 초안 · 2026 — 가입 개시 전 단계이며 여기 적힌 요금과 기능 범위는 확정 전입니다.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="experience.js"></script>
+  <script>
+    // 대기자 폼은 아직 수집 엔드포인트가 없다. 초안임을 감추지 않고 그대로 알린다.
+    (() => {
+      const form = document.getElementById('waitlistForm');
+      const status = document.getElementById('waitlistStatus');
+      if (!form || !status) return;
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const email = document.getElementById('waitlistEmail');
+        const consent = document.getElementById('waitlistConsent');
+        if (!email.value.trim() || !email.checkValidity()) { email.focus(); status.hidden = false; status.textContent = '이메일 주소를 확인해 주세요.'; return; }
+        if (!consent.checked) { consent.focus(); status.hidden = false; status.textContent = '수집 동의에 체크해 주세요.'; return; }
+        status.hidden = false;
+        status.textContent = '초안 페이지입니다 — 화면은 여기까지 동작하고, 실제 등록은 아직 연결되어 있지 않습니다.';
+      });
+    })();
+  </script>
+</body>
+</html>

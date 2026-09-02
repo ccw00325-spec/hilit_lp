@@ -26,16 +26,20 @@
     .skip-link:focus { transform: none; }
     .shell { width: min(100%, var(--content-max)); margin-inline: auto; padding-inline: var(--page-gutter); }
 
-    .site-nav { position: fixed; inset: 0 0 auto; z-index: var(--z-nav); background: var(--color-paper); color: var(--color-ink); border-block-end: var(--rule) solid var(--color-rule); }
-    .nav-inner { min-height: var(--nav-height); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-4); }
-    .brand { display: inline-flex; align-items: center; min-width: 0; min-height: 3.5rem; text-decoration: none; }
+    /* 로고 카드 그대로 — 민트 바탕에 크림 땡땡이. 격자로 보이지 않게 흩뿌린 배치를 마스크로 얹는다. */
+    .site-nav { position: fixed; inset: 0 0 auto; z-index: var(--z-nav); background: var(--color-accent); color: var(--color-accent-ink); border-block-end: var(--rule) solid var(--color-accent-rule); }
+    .site-nav::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--color-dot); -webkit-mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; pointer-events: none; }
+    .nav-inner { position: relative; z-index: 1; min-height: var(--nav-height); display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-4); }
+    .brand { display: inline-flex; align-items: center; min-width: 0; min-height: 2.5rem; text-decoration: none; }
     .brand img { width: var(--brand-size); height: auto; }
     .nav-links { display: none; justify-self: center; align-items: center; gap: var(--space-6); }
-    .nav-links a { display: inline-flex; align-items: center; min-height: 2.75rem; font-size: var(--text-sm); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
+    .nav-links a { display: inline-flex; align-items: center; min-height: 2.5rem; color: var(--color-accent-ink); font-size: var(--text-sm); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; }
     .nav-action, .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: var(--space-5); border: var(--rule) solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-ink); color: var(--color-light); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
     .btn-mint { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
     .btn-ghost { border-color: var(--color-rule); background: var(--color-clear); color: var(--color-ink); }
     .btn-dark-ghost { border-color: var(--color-ink-2); background: var(--color-clear); color: var(--color-light); }
+    /* justify-self: 링크가 숨는 좁은 화면에서 버튼이 1fr 칸으로 밀려 늘어나는 것을 막는다 */
+    .nav-action { justify-self: end; min-height: 2.5rem; padding-inline: var(--space-4); border-color: var(--color-accent-ink); background: var(--color-dot); color: var(--color-accent-ink); font-size: var(--text-sm); }
     .btn:active, .nav-action:active { transform: translateY(1px); }
     .btn:disabled, .nav-action[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
     .btn[data-loading="true"] { cursor: wait; }
@@ -51,9 +55,6 @@
     .hero h1 { min-width: 0; max-width: 10ch; margin: 0; font-family: var(--font-display); font-size: var(--text-hero); font-weight: 800; line-height: .92; letter-spacing: -.06em; overflow-wrap: anywhere; animation: hero-in var(--dur-long) var(--ease-out) both; }
     .hero p { max-width: 34rem; margin: var(--space-5) 0 0; font-size: var(--text-lg); font-weight: 600; }
     .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-block-start: var(--space-6); }
-    .hero-pause { min-height: 3rem; padding-inline: var(--space-4); border: var(--rule) solid var(--color-light-muted); border-radius: var(--radius-sm); background: var(--color-overlay-heavy); color: var(--color-light); font-weight: 700; line-height: 1; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
-    .hero-pause:active { transform: translateY(1px); }
-    .hero-pause:disabled { opacity: .5; cursor: not-allowed; }
     @keyframes hero-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
     .try-section { padding-block: var(--space-section); background: var(--color-paper); }
@@ -129,7 +130,7 @@
       .nav-action:hover, .btn:hover { transform: translateY(-1px); }
       .btn-mint:hover { background: var(--color-accent-strong); }
       .btn-ghost:hover { background: var(--color-paper-3); }
-      .btn-dark-ghost:hover, .hero-pause:hover { background: var(--color-dark-2); }
+      .btn-dark-ghost:hover { background: var(--color-dark-2); }
       .candidate-btn:hover { background: var(--color-accent-soft); }
       .mode-switch button:hover { background: var(--color-paper-3); color: var(--color-ink); }
     }
@@ -139,6 +140,7 @@
       .moment-strip { inset-inline-start: 28%; }
     }
     @media (min-width: 60rem) {
+      .nav-inner { grid-template-columns: auto 1fr auto; }
       .nav-links { display: flex; }
       .demo-wrap { grid-template-columns: minmax(0, 1.55fr) minmax(18rem, .45fr); align-items: start; }
       .demo-console { position: sticky; top: calc(var(--nav-height) + var(--space-5)); }
@@ -152,7 +154,6 @@
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
       .hero-video { display: none; }
       .hero-poster { display: block; }
-      .hero-pause { display: none; }
     }
     @media (prefers-reduced-data: reduce) { .hero-video { display: none; } .hero-poster { display: block; } }
   </style>
@@ -161,7 +162,7 @@
   <a class="skip-link" href="#main">본문으로 이동</a>
   <header class="site-nav">
     <div class="shell nav-inner">
-      <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark-transparent.png" width="535" height="165" alt="HILIT"></a>
+      <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
       <nav class="nav-links" aria-label="주요 메뉴"><a href="#try">직접 체험</a><a href="#features">기능</a><a href="#technology">기술</a></nav>
       <a class="nav-action" href="#try">체험하기</a>
     </div>
@@ -180,7 +181,6 @@
           <p>단체 영상에서 나를 골라<br>바로 편집하고 공유하세요.</p>
           <div class="hero-actions">
             <a class="btn btn-mint" href="#try">직접 골라보기</a>
-            <button class="hero-pause" id="heroPause" type="button" aria-pressed="false">영상 멈추기</button>
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@
   </main>
 
   <footer class="footer">
-    <div class="shell"><p class="footer-line">Highlight,<br>made personal.</p><div class="footer-meta"><img src="assets/hilit-wordmark-transparent.png" width="535" height="165" alt="HILIT"><span>Consumer experience prototype · 2026</span></div></div>
+    <div class="shell"><p class="footer-line">Highlight,<br>made personal.</p><div class="footer-meta"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"><span>Consumer experience prototype · 2026</span></div></div>
   </footer>
   <script type="module" src="experience.js"></script>
 </body>

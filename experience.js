@@ -25,7 +25,6 @@ const els = {
   result: $('#resultLine'),
   error: $('#errorBox'),
   heroVideo: document.querySelector('.hero-video'),
-  heroPause: $('#heroPause'),
 };
 
 let pipeline;
@@ -359,26 +358,12 @@ els.video.addEventListener('seeked', drawTrackingFrame);
 els.video.addEventListener('ended', () => { els.toggle.textContent = '다시 재생'; cancelAnimationFrame(animationFrame); drawTrackingFrame(); });
 document.addEventListener('fullscreenchange', () => { els.fullscreen.textContent = document.fullscreenElement ? '화면 닫기' : '전체 화면'; drawTrackingFrame(); });
 
-els.heroPause.addEventListener('click', async () => {
-  if (els.heroVideo.paused) {
-    try {
-      await els.heroVideo.play();
-      els.heroPause.textContent = '영상 일시정지';
-      els.heroPause.setAttribute('aria-pressed', 'false');
-    } catch {
-      els.heroPause.textContent = '영상 재생';
-    }
-  } else {
-    els.heroVideo.pause();
-    els.heroPause.textContent = '영상 재생';
-    els.heroPause.setAttribute('aria-pressed', 'true');
-  }
-});
-
+// 데이터 절약 모드에서는 영상 대신 정지 이미지를 보여준다.
+// 멈춤 버튼이 없어졌으므로 일시정지만 하면 되돌릴 수단이 없다.
 if (navigator.connection?.saveData) {
   els.heroVideo.pause();
-  els.heroPause.textContent = '영상 재생';
-  els.heroPause.setAttribute('aria-pressed', 'true');
+  els.heroVideo.style.display = 'none';
+  document.querySelector('.hero-poster').style.display = 'block';
 }
 if (location.protocol === 'file:') {
   els.detail.textContent = '실제 추적은 start-demo.cmd로 실행하면 바로 사용할 수 있습니다.';
