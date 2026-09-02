@@ -15,6 +15,8 @@
   --color-light: oklch(96% 0.014 165);
   --color-light-muted: oklch(78% 0.018 165);
   /* 브랜드 원색 — logo/앱-로고.png 픽셀 실측값 */
+  /* [T12 확정] accent는 로고 민트 하나로 유지한다. 영상 위 추적 박스(.candidate-btn·.focus-box)가
+     밝은 화면에서 옅게 보이는 것은 감수한 대가이며, 맥락별로 값을 갈라 쓰지 않는다. */
   --color-accent: oklch(90% 0.069 166);        /* 민트 #b3edd3 */
   --color-accent-strong: oklch(83% 0.098 166);
   --color-accent-soft: oklch(90% 0.069 166 / 0.26);

@@ -16,6 +16,9 @@ _workspace/
 assets/*.mp4
 assets/video-frames/
 
+# 같은 이유로 원본 샘플 영상도 커밋하지 않는다.
+docs/샘플영상/
+
 # 도구가 만드는 것
 node_modules/
 *.log

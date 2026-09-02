@@ -19,7 +19,7 @@ node serve.mjs
 ```
 index.html      페이지 본문
 experience.js   스크롤·인터랙션
-tokens.css      브랜드 토큰 (민트 #b4f0d2 / 잉크 #362418)
+tokens.css      브랜드 토큰 (민트 #b3edd3 / 잉크 #402a19 — logo/앱-로고.png 실측값)
 
 engine/         추적 엔진. hilit-tracking-poc 의 브라우저 모듈을 그대로 가져왔다
   models.js       NanoTrack · OSNet · NanoDet (onnxruntime-web)
@@ -53,6 +53,18 @@ assets/video-frames/frame-120.png
 프레임은 `tools/extract-video-frames.ps1` 로 영상에서 뽑을 수 있습니다.
 
 파일이 없어도 페이지는 열립니다. 해당 자리만 비어 보입니다.
+
+## 지금 안 쓰이는 assets 파일들 — 의도적으로 남겨 둡니다
+
+`assets/` 안에는 현재 페이지가 불러오지 않는 파일이 넷 있습니다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `hilit-wordmark-mint.png` · `hilit-wordmark-transparent.png` | 로고 교체 전의 워드마크 |
+| `tracking-grid.png` | 추적 관련 이미지 |
+| `tracking-debug.vtt` | 위 `tracking-debug.mp4` 와 짝이 되는 자막 |
+
+**정리 대상이 아닙니다.** 참조가 없다는 이유로 지우지 마세요.
 
 ## 관련 저장소
 
