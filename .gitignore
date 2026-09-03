@@ -22,6 +22,9 @@ assets/video-frames/
 !assets/basketball-arena.mp4
 !assets/basketball-aerial.mp4
 !assets/soccer-thermal.mp4
+!assets/hero-tracking.mp4
+!assets/my-record.mp4
+!assets/figure-ice.mp4
 
 # 같은 이유로 원본 샘플 영상도 커밋하지 않는다.
 docs/샘플영상/
@@ -35,3 +38,5 @@ assets/prototype/
 node_modules/
 *.log
 .DS_Store
+.vercel
+.env*
