@@ -136,6 +136,28 @@
     .p-title--hero em { color: var(--color-accent); font-style: normal; }
     .p-lede { margin: 0; max-width: 42rem; color: var(--color-light-muted); font-size: var(--text-lg); line-height: 1.55; }
     .panel-inner--center .p-lede { margin-inline: auto; }
+
+    /* ── 줄바꿈 ──────────────────────────────────────────────────────
+       한국어는 어절로 끊는다(body 의 word-break: keep-all). 그것만으로는
+       마지막 줄에 어절 하나만 남는 줄이 생긴다 — 실측(1440 / 768 / 390)에서
+       "붙입니다."(64px) "씁니다."(49px) "됩니다."(87px)처럼 한 어절짜리 줄이
+       여덟 군데 나왔다. 줄 끝이 아니라 문단 끝이 무너지는 문제다.
+       제목은 balance 로 줄들의 길이를 맞추고, 본문은 pretty 로 마지막 줄을 채운다.
+       🔴 두 속성 모두 브라우저가 모르면 지금까지의 줄바꿈 그대로다(퇴행 없음).
+       🔴 눈으로 고르지 않는다. 문안을 바꾸면 _measure 로 다시 재고 넣는다. */
+    .p-title, .plan-name, .fit h3, .faq summary, .footer-line { text-wrap: balance; }
+    .p-lede, .note, .p-notes li, .faq p, .fit-state, .fit-quote, .fit-goal, .plan-price small, .checks li { text-wrap: pretty; }
+    /* 붙여 읽어야 하는 덩어리 — 가운뎃점과 로마자 약어는 어절 사이가 아니라
+       덩어리 안에서 끊긴다("리그·/협회", "특화/SNS,"). 그 자리만 손으로 묶는다. */
+    .nb { white-space: nowrap; }
+    /* 손으로 넣은 줄바꿈은 넓은 화면의 리듬이다. 좁은 화면에서는 같은 자리가
+       "됩니다." 한 어절만 남기는 줄을 만든다(390 실측 · 87px).
+       🔴 balance 는 강제 줄바꿈이 있는 문단을 건너뛴다 — 그래서 접어야 일한다.
+       40rem 아래에서만 접는다. 그 위에서는 손으로 끊은 줄이 한 줄에 들어간다.
+       🔴 마크업에서 <br class="br-wide"> 뒤에는 공백을 한 칸 둔다 — 접었을 때
+          두 문장이 붙지 않게 하려는 것이고, 펼쳤을 때 그 공백은 줄 첫머리라 사라진다. */
+    .br-wide { display: none; }
+    @media (min-width: 40rem) { .br-wide { display: inline; } }
     /* 제목 아래 작은 글씨 — 제목이 한 말의 세부다. 글머리표 대신 짧은 민트 대시로
        왼끝을 맞춘다(점을 찍으면 "목록을 읽어라"가 되고, 여기는 훑히면 그만이다).
        🔴 --text-sm 은 본문보다 작다. 색은 --color-light-muted 그대로 둔다 —
@@ -210,18 +232,20 @@
          있으면 width:auto 가 inset 이 아니라 제 비율(972:832)에서 나온다 —
          실측했더니 1051px 이 나와 화면 오른쪽으로 202px 넘쳤다. 폭을 직접 준다. */
       .panel--split { --split: 44%; }
-      /* 🔴 --fit 에만 걸지 않는다. 오른쪽으로 모는 것은 두 패널이 함께 쓰는 배치이고,
-         칸 안을 담을지(contain·--fit) 채울지(cover·기본)는 소재마다 다른 별개의 결정이다.
-         기록 패널은 폰 목업이 가운데 27% 안에 있고 나머지가 빈 배경이라, 담으면
-         위아래 여백만 커지고 화면이 작아진다. 채워서 빈 좌우를 잘라내면 같은 칸에서
-         화면이 1.8배로 커진다 — 잘리는 것은 배경뿐이라 잃는 것이 없다. */
+      /* 🔴 오른쪽으로 모는 것은 두 패널이 함께 쓰는 배치이고, 칸 안을 담을지(contain·--fit)
+         채울지(cover·기본)는 소재마다 다른 별개의 결정이다. 지금은 둘 다 담는다 —
+         기록 소재는 빈 민트 여백을 아예 잘라내 떴기 때문에(354x704) 담아도 화면이
+         작아지지 않는다. 채우면 오히려 위아래가 잘려 프로필 줄과 탭바를 잃는다. */
       .panel--split .bg-video, .panel--split .bg-poster { inset-inline-start: var(--split); width: calc(100% - var(--split)); }
-      /* 🔴 채워 담는(cover) 소재만 붙어 있는 막대(내비+뷰바) 아래에서 시작하게 한다.
-         inset:0 이면 영상 맨 위가 막대 뒤로 들어가는데, 담는(contain) 소재는 위아래
-         여백이 있어 표가 안 나지만 채우는 소재는 화면 윗부분이 그대로 잘려 보인다 —
-         기록 패널에서 프로필 줄이 막대에 물렸다. --fit 이 아닌 것만 골라 내린다. */
-      .view--gallery .panel--split .bg-video:not(.bg-video--fit),
-      .view--gallery .panel--split .bg-poster:not(.bg-poster--fit) { inset-block-start: calc(var(--nav-height) + var(--bar-h)); }
+      /* 🔴 붙어 있는 막대(내비+뷰바) 아래에서 시작하게 한다. inset:0 이면 영상 맨 위가
+         막대 뒤로 들어간다. 담는(contain) 소재라도 세로가 꽉 차면 그대로 가려진다 —
+         잘라낸 기록 소재가 그랬다(프로필 줄이 막대에 물렸다). 소재를 가리지 않고
+         두 패널에 같이 건다. 담는 소재는 그만큼 폭이 줄지만, 잘려 안 보이는 것보다 낫다. */
+      /* 🔴 height 도 같이 줄여야 한다. .bg-video 의 height:100% 가 남아 있으면 위만
+         내려가고 아래는 그대로라 칸이 화면 밖으로 나간다 — 실측 116px 넘쳤다.
+         폭 때와 같은 함정이다(대체 요소는 inset 으로 크기가 정해지지 않는다). */
+      .view--gallery .panel--split .bg-video,
+      .view--gallery .panel--split .bg-poster { inset-block-start: calc(var(--nav-height) + var(--bar-h)); height: calc(100% - var(--nav-height) - var(--bar-h)); }
       .panel--split .scrim { display: none; }
       .panel--split .anchor { max-width: 32rem; }
       .panel--split .p-title { font-size: clamp(1.9rem, 2.9vw, 2.6rem); }
@@ -437,7 +461,7 @@
     <div class="nav-inner">
       <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
       <nav class="nav-links" aria-label="주요 메뉴"><a href="#as-is">고객 시나리오</a><a href="#auto-edit">편집 서비스</a><a href="#my-record">내 기록 공간</a><a href="#pricing">요금</a></nav>
-      <a class="nav-action" href="login.html">무료로 시작하기</a>
+      <a class="nav-action" href="login.html">가입하기</a>
     </div>
   </header>
 
@@ -477,7 +501,7 @@
           <h1 class="p-title p-title--hero">당신이 주인공인<br>숏폼을 완성하고,<br><em>당신의 공간에 기록하세요</em></h1>
           <p class="p-lede">수많은 사람 속에서도 하일릿은 당신을 찾아 따라갑니다.<br>완성한 순간은 당신만의 공간에 남고, 공개할지는 나중에 정하면 됩니다.</p>
           <div class="cta-row">
-            <a class="btn btn-mint btn-lg" href="login.html">무료로 시작하기</a>
+            <a class="btn btn-mint btn-lg" href="login.html">가입하기</a>
             <a class="btn btn-lg" href="#try">먼저 체험해보기</a>
           </div>
           <p class="scroll-cue">SCROLL</p>
@@ -635,9 +659,9 @@
               </ul>
             </article>
           </div>
-          <p class="note">시즌 단위가 맞지 않으시면 월 9,900원으로도 쓰실 수 있습니다. 한도를 넘겨 쓰는 몫과 가족에게 함께 보내는 몫의 값은 아직 정하지 않았습니다. <b>클럽 요금제는 준비 중입니다</b> — 문의를 남겨 주시면 순서대로 안내드립니다. 리그·협회 단위는 규모에 따라 따로 상의합니다.</p>
+          <p class="note">시즌 단위가 맞지 않으시면 월 9,900원으로도 쓰실 수 있습니다. 한도를 넘겨 쓰는 몫과 가족에게 함께 보내는 몫의 값은 아직 정하지 않았습니다. <b>클럽 요금제는 준비 중입니다</b> — 문의를 남겨 주시면 순서대로 안내드립니다. <span class="nb">리그·협회</span> 단위는 규모에 따라 따로 상의합니다.</p>
           <div class="cta-row">
-            <a class="btn btn-mint" href="login.html">무료로 시작하기</a>
+            <a class="btn btn-mint" href="login.html">가입하기</a>
             <a class="btn" href="#start">클럽 도입 문의</a>
           </div>
           <p class="note">무료로도 영상 한 편이 끝까지 완성됩니다. 체험판이 아닙니다.</p>
@@ -694,7 +718,7 @@
           </div>
           <p class="note">넷 다 아니어도 괜찮습니다. 영상이 있고 그 안에 본인이 나온다면 무료로 한 편을 끝까지 만들어 보실 수 있습니다.</p>
           <div class="cta-row">
-            <a class="btn btn-mint" href="login.html">무료로 시작하기</a>
+            <a class="btn btn-mint" href="login.html">가입하기</a>
           </div>
           <p class="note">어느 쪽이 맞는지 모르겠으면 무료로 먼저 해보시고 정하셔도 됩니다.</p>
         </div>
@@ -709,7 +733,7 @@
       <div class="panel-inner panel-inner--right panel-inner--top">
         <div class="anchor anchor--wide">
           <p class="eyebrow">FAQ</p>
-          <h2 class="p-title" id="faq-title">먼저 물어보실<br>것 같은 것들.</h2>
+          <h2 class="p-title" id="faq-title">하일릿의 하이라이트 <span class="nb">특화 SNS,</span><br class="br-wide"> 하일릿은 무엇이 다를까요?</h2>
           <div class="faq">
             <details>
               <summary>제 영상이 서버로 올라가나요?</summary>
@@ -748,7 +772,7 @@
       <div class="panel-inner panel-inner--center">
         <div class="anchor anchor--wide">
           <img class="final-mark" src="assets/hilit-app-icon.png" width="512" height="512" alt="" aria-hidden="true">
-          <h2 class="p-title" id="start-title">영상은 이미 있습니다.<br>이제, 나의 순간만 남기면 됩니다.</h2>
+          <h2 class="p-title" id="start-title">영상은 이미 있습니다.<br class="br-wide"> 이제, 나의 순간만 남기면 됩니다.</h2>
           <p class="p-lede">여러 사람이 함께 나온 영상에서 당신만 골라내 짧은 한 편으로 만듭니다. 올릴지는 나중에 정하시면 됩니다.</p>
           <div class="cta-row">
             <a class="btn btn-mint btn-lg" href="login.html" data-signup>첫 60일 3편 무료로 시작하기</a>
@@ -834,7 +858,7 @@
       <p>내 기록 공간</p>
     </div>
 
-    <!-- 배경 영상 — assets/record-flow.mp4 (1280x720 · 24fps · 9.3초).
+    <!-- 배경 영상 — assets/record-flow.mp4 (354x704 · 24fps · 9.3초).
          앱에서 내 기록을 열고 공개 범위를 고르는 UX 흐름 녹화다. 이 패널이 말하는
          "먼저 남기고, 올릴지 나중에 고른다"를 배경이 화면 그대로 보여 준다.
          🔴 원본 앞 5프레임을 버렸다 — 첫 프레임이 완전한 검정이고 2~4프레임이 페이드인이라
@@ -847,17 +871,24 @@
          🔴 좁은 화면(<60rem)에서는 나눌 폭이 없어 예전처럼 영상을 깔고 글자를 얹는다.
             그때는 .scrim--bright 가 그대로 산다 — 소재가 거의 흰 화면이라(최고 255,255,255)
             공용 .scrim--video 로는 위가 비어 뷰바 글자가 1.12:1 까지 떨어졌던 자리다.
-         🔴 16:9 소재라 오른쪽 칸(약 56%)에 담기면 위아래에 검은 여백이 남는다. 뷰바가
-            앉는 맨 위는 그 여백이라 흰 화면이 바 밑으로 들어오지 않는다 — 넓은 화면에서
-            scrim 을 걷어도 바 글자의 대비가 무너지지 않는 근거다.
+         🔴 원본은 1280x720 인데 휴대폰 본체는 가운데 346px 뿐이고 나머지는 민트 여백이었다.
+            그 여백을 잘라 354x704 로 다시 떴다(실측 경계 x468..814 · y12..707 에 여유 몇 px).
+            자르지 않으면 오른쪽 칸에서 앱 화면이 절반 크기로 앉거나, cover 로 채우면
+            아래가 잘려 나간다 — 둘 다 "화면이 잘 보인다"가 되지 않는다.
+            잘라낸 뒤에는 오른쪽 칸에서 1.03배로만 늘어나 글자가 뭉개지지 않는다.
+            잘라낸 만큼 화소가 줄어 CRF 를 20 까지 낮췄는데도 용량은 오히려 줄었다.
+         🔴 세로로 긴 소재(354x704)가 되어 오른쪽 칸에 담기면 좌우에 검은 여백이 남는다.
+            뷰바가 앉는 맨 위도 그 여백이라 흰 화면이 바 밑으로 들어오지 않는다 —
+            넓은 화면에서 scrim 을 걷어도 바 글자의 대비가 무너지지 않는 근거다.
          🔴 실물 앱 녹화라 화면 안에 계정 핸들과 영상 썸네일이 담긴다. 랜딩은 공개 웹이므로
-            §1.4 T6·NF-017 이 걸리는 소재다. 🔺 여기서 scrim 을 걷으면 지금까지 "가려져서
-            식별이 어렵다"고 적어 둔 조건이 사라진다 — 화면이 또렷해지는 만큼 핸들과
-            썸네일도 또렷해진다. 발행 전에 이 소재의 인물 표시를 다시 확인해야 한다. -->
+            §1.4 T6·NF-017 이 걸리는 소재다. 🔺 scrim 을 걷은 데 더해 이제 여백을 잘라
+            앱 화면만 크게 띄운다 — "가려져서 식별이 어렵다"고 적어 두었던 조건이
+            완전히 사라졌다. 계정 핸들과 링크 안 인물이 앞판보다 더 또렷하다.
+            🔺 발행 전에 이 소재의 인물 표시를 반드시 다시 확인해야 한다. -->
     <section class="panel panel--split" aria-labelledby="record-title">
-      <video class="bg-video" src="assets/record-flow.mp4" poster="assets/record-flow-poster.jpg"
+      <video class="bg-video bg-video--fit" src="assets/record-flow.mp4" poster="assets/record-flow-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
-      <img class="bg-poster" src="assets/record-flow-poster.jpg" alt="" width="1280" height="720" aria-hidden="true">
+      <img class="bg-poster bg-poster--fit" src="assets/record-flow-poster.jpg" alt="" width="354" height="704" aria-hidden="true">
       <div class="scrim scrim--bright" aria-hidden="true"></div>
       <div class="panel-inner panel-inner--left">
         <div class="anchor anchor--wide">
@@ -883,7 +914,7 @@
         <span class="footer-mark"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></span>
         <nav class="footer-links" aria-label="법적 고지"><a href="#faq">개인정보 처리방침 (준비 중)</a><a href="#faq">이용약관 (준비 중)</a><a href="#start">문의</a></nav>
       </div>
-      <p class="draft-flag">LP v5 갤러리형 초안 · 2026 — TO-BE 를 자동 편집과 내 기록 공간 두 패널로 나누고, 편집 서비스 체험과 내 기록 공간은 갤러리에서 빼내 버튼으로 넘어가는 별도 화면으로 만들었습니다. 브라우저에서 직접 돌리던 추적 데모는 뺐습니다. 여기 적힌 요금과 기능 범위는 확정 전입니다. 배경 영상은 전부 임시 소재입니다 — 히어로와 내 기록 공간은 받은 소재를 그대로 넣었고, 나머지는 임시 소재에 인물 추적 상자를 얹어 만든 것입니다. 예시 프로토타입은 아직 자리만 비워 두었습니다. [무료로 시작하기]·[가입하기]·[내 기록부터 만들기] 같은 가입 버튼은 임시 로그인 화면으로 연결됩니다.</p>
+      <p class="draft-flag">LP v5 갤러리형 초안 · 2026 — TO-BE 를 자동 편집과 내 기록 공간 두 패널로 나누고, 편집 서비스 체험과 내 기록 공간은 갤러리에서 빼내 버튼으로 넘어가는 별도 화면으로 만들었습니다. 브라우저에서 직접 돌리던 추적 데모는 뺐습니다. 여기 적힌 요금과 기능 범위는 확정 전입니다. 배경 영상은 전부 임시 소재입니다 — 히어로와 내 기록 공간은 받은 소재를 그대로 넣었고, 나머지는 임시 소재에 인물 추적 상자를 얹어 만든 것입니다. 예시 프로토타입은 아직 자리만 비워 두었습니다. [가입하기]·[첫 60일 3편 무료로 시작하기]·[내 기록 만들러가기] 같은 가입 버튼은 임시 로그인 화면으로 연결됩니다.</p>
     </div>
   </footer>
 
