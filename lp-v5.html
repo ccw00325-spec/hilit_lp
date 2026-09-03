@@ -221,7 +221,7 @@
        "무엇을 하는 화면인가"가 그 두 곳에 있어서 잘리면 뜻이 상한다.
        대신 좌우에 검은 여백이 생긴다. 지면보다 한 단 어두운 값이라 영상의 검은
        바탕과 이어져 보이고, 여백이 아니라 화면 테두리처럼 읽힌다. */
-    .bg-video--fit, .bg-poster--fit { object-fit: contain; background: oklch(10% 0.016 165); }
+    .bg-video--fit, .bg-poster--fit { object-fit: contain; background: #000; }
     /* 넓은 화면에서는 영상을 오른쪽으로 몰고, 왼쪽에 생긴 검은 자리에 카피를 앉힌다.
        🔴 영상 위에 글자를 얹지 않으므로 scrim 으로 누를 일이 없다 — 영상이 한 점도
           가려지지 않는다. 이것이 "다 보이게 한다"의 실제 조건이다. scrim 을 남기면
@@ -244,9 +244,13 @@
          두 패널에 같이 건다. 담는 소재는 그만큼 폭이 줄지만, 잘려 안 보이는 것보다 낫다. */
       /* 🔴 height 도 같이 줄여야 한다. .bg-video 의 height:100% 가 남아 있으면 위만
          내려가고 아래는 그대로라 칸이 화면 밖으로 나간다 — 실측 116px 넘쳤다.
-         폭 때와 같은 함정이다(대체 요소는 inset 으로 크기가 정해지지 않는다). */
+         폭 때와 같은 함정이다(대체 요소는 inset 으로 크기가 정해지지 않는다).
+         🔴 내리는 양은 막대 높이가 아니라 **막대가 실제로 덮는 만큼**이다. 막대는
+         흐름에서 이미 제 높이를 차지하고 패널을 그만큼 밀어 두었으므로, 붙어서(sticky)
+         겹치는 부분은 내비 높이뿐이다 — 실측으로 패널 60, 막대가 그리는 자리 56..117,
+         겹침 57px. nav+bar(116)만큼 내리면 60px 을 괜히 더 버려 소재가 그만큼 작아진다. */
       .view--gallery .panel--split .bg-video,
-      .view--gallery .panel--split .bg-poster { inset-block-start: calc(var(--nav-height) + var(--bar-h)); height: calc(100% - var(--nav-height) - var(--bar-h)); }
+      .view--gallery .panel--split .bg-poster { inset-block-start: var(--nav-height); height: calc(100% - var(--nav-height)); }
       .panel--split .scrim { display: none; }
       .panel--split .anchor { max-width: 32rem; }
       .panel--split .p-title { font-size: clamp(1.9rem, 2.9vw, 2.6rem); }
@@ -873,12 +877,15 @@
             그때는 .scrim--bright 가 그대로 산다 — 소재가 거의 흰 화면이라(최고 255,255,255)
             공용 .scrim--video 로는 위가 비어 뷰바 글자가 1.12:1 까지 떨어졌던 자리다.
          🔴 원본은 1280x720 인데 휴대폰 본체는 가운데 346px 뿐이고 나머지는 민트 여백이었다.
-            그 여백을 잘라 354x704 로 다시 떴다(실측 경계 x468..814 · y12..707 에 여유 몇 px).
+            그 여백을 잘라 340x688 로 다시 떴다(민트가 끝나는 실측 경계 x470..809 · y16..703).
             자르지 않으면 오른쪽 칸에서 앱 화면이 절반 크기로 앉거나, cover 로 채우면
             아래가 잘려 나간다 — 둘 다 "화면이 잘 보인다"가 되지 않는다.
-            잘라낸 뒤에는 오른쪽 칸에서 1.03배로만 늘어나 글자가 뭉개지지 않는다.
+            🔴 카드가 둥글어서 사각으로 자르면 네 귀퉁이에 민트가 남는다. 더 잘라내면
+            화면을 잃으므로, 귀퉁이만 검정으로 덮었다(반지름 28px 마스크) — 여백과 같은
+            검정이라 이어져 보이고 화면은 한 화소도 잃지 않는다.
+            잘라낸 뒤에는 오른쪽 칸에서 1.14배로만 늘어나 글자가 뭉개지지 않는다.
             잘라낸 만큼 화소가 줄어 CRF 를 20 까지 낮췄는데도 용량은 오히려 줄었다.
-         🔴 세로로 긴 소재(354x704)가 되어 오른쪽 칸에 담기면 좌우에 검은 여백이 남는다.
+         🔴 세로로 긴 소재(340x688)가 되어 오른쪽 칸에 담기면 좌우에 검은 여백이 남는다.
             뷰바가 앉는 맨 위도 그 여백이라 흰 화면이 바 밑으로 들어오지 않는다 —
             넓은 화면에서 scrim 을 걷어도 바 글자의 대비가 무너지지 않는 근거다.
          🔴 실물 앱 녹화라 화면 안에 계정 핸들과 영상 썸네일이 담긴다. 랜딩은 공개 웹이므로
@@ -889,7 +896,7 @@
     <section class="panel panel--split" aria-labelledby="record-title">
       <video class="bg-video bg-video--fit" src="assets/record-flow.mp4" poster="assets/record-flow-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
-      <img class="bg-poster bg-poster--fit" src="assets/record-flow-poster.jpg" alt="" width="354" height="704" aria-hidden="true">
+      <img class="bg-poster bg-poster--fit" src="assets/record-flow-poster.jpg" alt="" width="340" height="688" aria-hidden="true">
       <div class="scrim scrim--bright" aria-hidden="true"></div>
       <div class="panel-inner panel-inner--left">
         <div class="anchor anchor--wide">
