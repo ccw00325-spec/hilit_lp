@@ -1,0 +1,50 @@
+<!doctype html><meta charset="utf-8"><title>줄바꿈 실측</title>
+<!-- 줄바꿈 실측 도구 — lp-v5 의 문안을 손볼 때 눈으로 고르지 않기 위한 자다.
+     serve.mjs 를 띄우고 tools/measure-linebreaks.html 을 폭을 바꿔가며 연다.
+       ?w=390&h=844                 잴 뷰포트
+       &sel=%23faq-title            잴 선택자(기본값은 제목·본문 전부)
+       &show=try|record             스크립트가 hidden 으로 감춘 갤러리 화면을 펴서 잰다
+     각 줄의 실제 픽셀 폭과 글자를 찍어 준다 — 마지막 줄에 한 어절만 남는 줄을 찾는 용도다.
+     배포에는 올라가지 않는다(.vercelignore 의 tools/). -->
+<style>html,body{margin:0}iframe{border:0}</style>
+<pre id="out">running</pre>
+<script>
+const q = new URLSearchParams(location.search);
+const W = Number(q.get('w') || 1440), H = Number(q.get('h') || 900);
+const f = document.createElement('iframe');
+f.width = W; f.height = H; f.src = q.get('src') || '../lp-v5.html';
+document.body.appendChild(f);
+f.onload = async () => {
+  const d = f.contentDocument, w = f.contentWindow;
+  try { await d.fonts.ready; } catch {}
+  const show = q.get('show');
+  if (show) { d.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== show; }); }
+  await new Promise(r => setTimeout(r, 400));
+  const sel = q.get('sel') || '.p-title, .p-lede, .note, .footer-line, .faq summary, .faq p, .fit p, .plan-price small';
+  const els = [...d.querySelectorAll(sel)];
+  const lines = (el) => {
+    const walker = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const out = []; let cur = null; const rng = d.createRange();
+    let n;
+    while ((n = walker.nextNode())) {
+      const t = n.nodeValue;
+      for (let i = 0; i < t.length; i++) {
+        rng.setStart(n, i); rng.setEnd(n, i + 1);
+        const r = rng.getBoundingClientRect();
+        if (!r.width && !r.height) { if (cur) cur.text += t[i]; continue; }
+        const top = Math.round(r.top);
+        if (!cur || Math.abs(cur.top - top) > 3) { cur = { top, text: t[i], left: r.left, right: r.right }; out.push(cur); }
+        else { cur.text += t[i]; cur.left = Math.min(cur.left, r.left); cur.right = Math.max(cur.right, r.right); }
+      }
+    }
+    return out;
+  };
+  const rep = els.map(el => {
+    const box = el.getBoundingClientRect();
+    const id = (el.id ? '#' + el.id : '') + '.' + [...el.classList].join('.') + ' @' + (el.closest('section')?.id || '?');
+    const ls = lines(el).map(l => `      [${String(Math.round(l.right - l.left)).padStart(4)}px] ${l.text}`);
+    return `${id}  (box ${Math.round(box.width)}px)\n${ls.join('\n')}`;
+  }).join('\n\n');
+  document.getElementById('out').textContent = `VIEWPORT ${W}x${H}\n\n` + rep;
+};
+</script>
