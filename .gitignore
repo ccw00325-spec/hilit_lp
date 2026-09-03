@@ -16,6 +16,13 @@ _workspace/
 assets/*.mp4
 assets/video-frames/
 
+# 다만 아래 배경 영상은 커밋한다. 실제 인물이 아니라 생성된 CG 클립이라 위의 사유가
+# 걸리지 않고, 랜딩이 이 파일에 기대므로 없으면 페이지가 비어 보인다.
+!assets/hero-hockey.mp4
+!assets/basketball-arena.mp4
+!assets/basketball-aerial.mp4
+!assets/soccer-thermal.mp4
+
 # 같은 이유로 원본 샘플 영상도 커밋하지 않는다.
 docs/샘플영상/
 
