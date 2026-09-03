@@ -11,7 +11,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="tokens.css">
   <style>
-    /* LP v1 — docs/LP/HILiT_랜딩페이지_제작계획서_v1_0.md **(v1.12)** 기준. S0~S11 전 구간.
+    /* LP v2 — docs/LP/HILiT_랜딩페이지_제작계획서_v1_0.md (v1.12) 구조 위에
+       사용자 카피 개정을 얹은 판이다. v1 대비 바뀐 곳은 히어로 서브·데모 안내문·
+       고객 시나리오 섹션·작동 방식 4단계이며, 각 자리에 [v2] 주석을 달아 두었다.
+       S0~S11 전 구간.
        T5 로 가입이 열려 CTA 는 전부 회원가입(#start)이다. 대기자 등록 단계는 두지 않는다.
        T3 으로 대기·처리 시간에 관한 서술은 페이지 어디에도 두지 않는다.
        T15 인칭 — 페이지가 말을 거는 문장은 "당신", 방문자가 누르는 버튼은 "나". */
@@ -46,6 +49,8 @@
     .section-head { display: grid; gap: var(--space-4); margin-block-end: var(--space-7); }
     /* 섹션 헤드는 2단 안에 들어가므로 히어로보다 한 단 작게 잡는다. 안 그러면 <br> 이 정한 줄바꿈이 무시되고 낱말이 잘린다. */
     .section-head .h-slab { max-width: 20ch; font-size: clamp(2rem, 3.4vw, 3.9rem); }
+    /* [v2] 리드 문장이 없는 섹션 헤드는 제목만 서므로 아래 간격을 조금 줄인다. */
+    .section-head:not(:has(p)) { margin-block-end: var(--space-6); }
     .section-head p { max-width: 36rem; margin: 0; color: var(--color-muted); font-size: var(--text-lg); }
     .on-dark .section-head p { color: var(--color-light-muted); }
     .note { max-width: 44rem; margin: var(--space-6) 0 0; padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
@@ -82,6 +87,9 @@
     .hero-inner { min-height: clamp(38rem, 84dvh, 54rem); display: flex; flex-direction: column; justify-content: flex-end; gap: var(--space-8); padding-block: var(--space-hero-top) var(--space-hero-bottom); }
     .hero h1 { min-width: 0; max-width: 16ch; margin: 0; font-family: var(--font-display); font-size: var(--text-hero); font-weight: 800; line-height: .92; letter-spacing: -.06em; animation: rise var(--dur-long) var(--ease-out) both; }
     .hero p { max-width: 40rem; margin: var(--space-5) 0 0; color: var(--color-light-muted); font-size: var(--text-lg); font-weight: 500; }
+    /* [v2] 서브가 네 줄이 되어 <br> 이 정한 줄바꿈을 지켜야 한다. 폭을 넓히고 행간을 조인다. */
+    .hero-sub { max-width: 46rem; line-height: 1.5; }
+    @media (max-width: 34rem) { .hero-sub br { display: none; } }
     @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
     .ribbon { margin: 0; }
@@ -100,7 +108,12 @@
     .pain { display: grid; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: 2px solid var(--color-accent); }
     .pain-no { color: var(--color-accent); font-family: var(--font-display); font-size: var(--text-sm); font-weight: 800; letter-spacing: .12em; }
     .pain h3 { margin: 0; max-width: 18ch; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1.08; letter-spacing: -.035em; }
+    /* [v2] 시나리오 제목은 한 문장이라 xl 이면 카드 하나를 다 먹는다. */
+    .pain-grid--walls h3 { max-width: 24ch; font-size: clamp(1.25rem, 1.9vw, 1.75rem); line-height: 1.18; }
     .pain p { margin: 0; color: var(--color-light-muted); font-size: var(--text-base); }
+    .pain h3 + p { margin-block-start: var(--space-1); }
+    /* [v2] 시나리오 안에서 사용자가 스스로에게 하는 말. 본문과 목소리가 다르므로 눈으로도 갈라 둔다. */
+    .scenario-quote { padding-inline-start: var(--space-4); border-inline-start: 2px solid var(--color-accent); color: var(--color-light) !important; font-size: var(--text-lg) !important; font-weight: 600; }
 
     /* S3 데모 — 현행 #try 를 그대로 살리고 STEP 표시만 보강한다(계획서 §4 "살릴 것 1개"). */
     .demo-wrap { display: grid; gap: var(--space-5); min-width: 0; }
@@ -146,6 +159,9 @@
     .steps li { counter-increment: step; display: grid; gap: var(--space-3); padding-block-start: var(--space-4); border-block-start: var(--rule) solid var(--color-rule); }
     .steps li::before { content: "0" counter(step); color: var(--color-accent-strong); font-family: var(--font-display); font-size: var(--text-xl); font-weight: 800; line-height: 1; letter-spacing: -.03em; }
     .steps h3 { margin: 0; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; letter-spacing: -.02em; }
+    /* [v2] 단계 제목이 낱말에서 문장이 되었다. 4열 안에서도 읽히도록 한 단 줄이고 행간을 연다. */
+    .steps--sentence h3 { font-size: clamp(1.02rem, 1.15vw, 1.2rem); line-height: 1.35; letter-spacing: -.015em; }
+    .steps--sentence p { font-size: var(--text-sm); }
     .steps p { margin: 0; color: var(--color-muted); font-size: var(--text-base); }
 
     /* S6 완성한 다음 — 세 블록이 사용자가 겪는 순서 그대로다. */
@@ -156,32 +172,21 @@
     .after-copy p:last-child { margin-block-end: 0; }
     .after-copy em { color: var(--color-accent); font-style: normal; font-weight: 700; }
 
-    .mock { display: grid; gap: var(--space-3); padding: var(--space-5); border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-md); background: var(--color-dark-2); }
-    .mock-cap { margin: 0; color: var(--color-light-muted); font-size: var(--text-xs); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-    .scope-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2); }
-    .scope-opt { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); color: var(--color-light-muted); font-size: var(--text-sm); font-weight: 700; }
-    .scope-opt.is-on { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
-    .tabs-row { display: flex; gap: var(--space-4); padding-block-end: var(--space-3); border-block-end: var(--rule) solid var(--color-ink-2); font-size: var(--text-sm); font-weight: 700; color: var(--color-light-muted); }
-    .tabs-row .is-on { color: var(--color-accent); box-shadow: 0 var(--space-3) 0 -.65rem var(--color-accent); }
-    .feed-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
-    .feed-tile { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border: var(--rule) solid var(--color-ink-2); border-radius: var(--radius-sm); background: oklch(26% 0.024 165); }
-    .feed-tile::after { content: ""; position: absolute; inset: 0; background: var(--color-accent); opacity: .22; -webkit-mask: url("assets/dot-pattern.svg") 0 0 / 96px 24px repeat; mask: url("assets/dot-pattern.svg") 0 0 / 96px 24px repeat; }
-    .tabbar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-3); padding-block-start: var(--space-3); border-block-start: var(--rule) solid var(--color-ink-2); }
-    .tabbar-row i { display: block; height: .4rem; border-radius: var(--radius-sm); background: var(--color-ink-2); }
-    .tabbar-plus { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-accent-ink); font-family: var(--font-display); font-size: var(--text-lg); font-weight: 800; }
-    /* T7 — 실물 카드 한 장과 아직 비어 있는 카드를 눈으로 구분한다.
-       흐림이 말하는 것은 "아직 여기까지"이지 "뒤에 더 있다"가 아니다. */
-    .feed-tile--dim { opacity: .38; }
-    .feed-tile--dim::after { opacity: .1; }
-    .feed-tile--live { border-color: var(--color-accent); }
+    /* ── 앱 화면 ─────────────────────────────────────────────────────────
+       [v2] 실물 프로토타입(`~/workspace/ui-hilit`, localhost:3001)을 **그대로 캡처**했다.
+       화면을 다시 그리지 않는다 — 손으로 옮기면 앱이 바뀔 때 조용히 어긋난다.
 
-    /* S5 블록3 — 한 계정 안에서 기록마다 범위가 갈리는 모습 */
-    .scope-list { display: grid; gap: var(--space-2); }
-    .scope-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border: var(--rule) solid var(--color-accent-rule); border-radius: var(--radius-sm); background: var(--color-dark); font-size: var(--text-sm); }
-    .scope-item i { flex: none; width: 1.6rem; height: 1.6rem; border-radius: var(--radius-sm); background: var(--color-accent); }
-    .scope-item b { margin-inline-start: auto; color: var(--color-accent); font-size: var(--text-xs); font-weight: 800; letter-spacing: .06em; white-space: nowrap; }
-    .scope-item--priv i { background: var(--color-ink-2); }
-    .scope-item--priv b { color: var(--color-light-muted); }
+       캡처 방법 (앱을 띄운 뒤):
+         chrome --headless=new --force-device-scale-factor=2 --window-size=480,900 \
+                --screenshot=out.png http://localhost:3001<경로>
+         sips -Z 620 -s format jpeg -s formatOptions 82 out.png --out assets/prototype/app-<이름>.jpg
+       480px 는 앱이 정한 최대 폭(max-w-[30rem])이라 잘리는 데가 없다.
+
+       🔴 캡처에 실제 인물의 얼굴이 담긴다. 랜딩은 공개 웹이라 공개 발행과 같은 노출이므로
+          §1.4 T6 의 블러 조건과 NF-017 이 이 이미지에도 그대로 걸린다. 발행 전 처리한다. */
+    .mock { display: grid; gap: var(--space-3); align-content: start; width: min(100%, 15.5rem); margin-inline: auto; }
+    .mock img { width: 100%; height: auto; border-radius: 1.25rem; background: oklch(100% 0 0); box-shadow: 0 0 0 1px oklch(24% 0.021 166 / 0.1), 0 1.25rem 2.75rem oklch(10% 0.02 165 / 0.5); }
+    .mock-cap { margin: 0; color: var(--color-light-muted); font-size: var(--text-xs); text-align: center; }
 
     /* S7 신뢰의 증거 */
     .evidence { display: grid; gap: var(--space-6); margin-block-start: var(--space-7); }
@@ -279,7 +284,7 @@
   <header class="site-nav">
     <div class="shell nav-inner">
       <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
-      <nav class="nav-links" aria-label="주요 메뉴"><a href="#walls">두 개의 벽</a><a href="#try">직접 체험</a><a href="#how">작동 방식</a><a href="#pricing">요금</a></nav>
+      <nav class="nav-links" aria-label="주요 메뉴"><a href="#scenario">고객 시나리오</a><a href="#try">직접 체험</a><a href="#how">작동 방식</a><a href="#pricing">요금</a></nav>
       <a class="nav-action" href="#start">무료로 시작하기</a>
     </div>
   </header>
@@ -296,10 +301,11 @@
       <img class="hero-poster" alt="" width="1284" height="720" hidden aria-hidden="true">
       <div class="shell hero-inner">
         <div class="hero-copy">
-          <p class="kicker">개인 하이라이트</p>
           <!-- T2 확정 헤드라인. 문구를 바꾸려면 계획서 §2.1 을 먼저 본다 — D3 권고를 넘어선 자리다. -->
           <h1>당신이 주인공인<br>숏폼을 완성하고,<br>당신의 공간에 기록하세요</h1>
-          <p>여러 사람이 함께 나온 영상에서 당신만 골라냅니다. 가려졌다 다시 나타나도 같은 사람으로 따라가고, 올릴지는 나중에 정하시면 됩니다.</p>
+          <!-- [v2] 서브 헤드라인 교체. 🔴 "가려져도, 사라져도 … 끝까지"는 계획서 §5 의 N2
+               (절대성 주장 금지) 경계에 가깝다. 문구를 더 세게 만들지 않는다. -->
+          <p class="hero-sub">수많은 사람 속에도 하일릿은 당신을 찾아냅니다.<br>가려져도, 사라져도 당신의 순간을 끝까지 따라갑니다.<br>당신만의 순간을 발견하고, 하나의 장면으로 완성하세요.<br>그리고 가장 멋진 나를 남기고, 공유하세요.</p>
           <div class="cta-row">
             <a class="btn btn-mint" href="#start">무료로 시작하기</a>
             <a class="btn btn-dark-ghost" href="#try">먼저 체험해보기</a>
@@ -312,28 +318,31 @@
       </div>
     </section>
 
-    <!-- S2 · 두 개의 벽 — 방문자가 "내 얘기다"를 인정하는 자리(계획서 §3.4)
-         T10 확정 — Pain 을 수치가 아니라 행동으로 적는다. 소요 시간 추정치는 쓰지 않는다(§5).
+    <!-- S2 · 고객 시나리오 — 방문자가 "내 얘기다"를 인정하는 자리(계획서 §3.4)
+         [v2] 섹션 이름을 "두 개의 벽"에서 "고객 시나리오"로 바꾸고, 두 벽을 각각
+         1인칭 장면으로 다시 썼다. 다루는 벽 둘(편집 부담 · 올릴 자신)은 그대로다.
+         T10 확정 — Pain 은 수치가 아니라 행동으로 적는다. 소요 시간 추정치는 쓰지 않는다(§5).
          T9 확정 — "부계정"을 직접 쓴다. 플랫폼명 결합과 판단어("몰래"·"숨겨온")는 금지(§5). -->
-    <section class="section section--compact on-dark" id="walls" aria-labelledby="walls-title">
+    <section class="section section--compact on-dark" id="scenario" aria-labelledby="scenario-title">
       <div class="shell">
         <div class="section-head">
-          <h2 class="h-slab" id="walls-title">원본은 쌓이는데,<br>남는 건 없습니다.</h2>
-          <p>영상을 찍는 사람은 늘었는데, 찍은 영상에서 자기 장면을 꺼내 오는 일은 여전히 사람 손입니다. 거기에 벽이 둘 있습니다.</p>
+          <h2 class="h-slab" id="scenario-title">편집 예정인 영상만<br>쌓이지 않나요?</h2>
         </div>
         <div class="pain-grid pain-grid--walls">
           <article class="pain">
-            <span class="pain-no">벽 01</span>
-            <h3>꺼내 올 시간도, 실력도 없습니다</h3>
-            <p>20분짜리 원본을 처음부터 넘겨 가며 당신이 나온 장면을 찾습니다. 고정 카메라는 경기를 담지만 누가 어디에 있었는지는 기록하지 않고, 카메라가 사람을 따라오지도 않아 당신은 화면 구석에 작게 잡혀 있습니다.</p>
+            <span class="pain-no">시나리오 01</span>
+            <h3>내가 나온 순간을 찾고 싶지만 찾는 것부터 어렵습니다.</h3>
+            <p>20분짜리 영상을 처음부터 끝까지 넘겨봅니다.<br>내가 나온 장면을 찾고, 다시 찾고, 또 찾아봅니다.<br>그러다 문득 생각합니다.</p>
+            <p class="scenario-quote">&ldquo;이걸 언제 다 찾고, 언제 편집하지?&rdquo;</p>
+            <p>결국 편집 앱을 닫습니다.</p>
           </article>
           <article class="pain">
-            <span class="pain-no">벽 02</span>
-            <h3>올릴 자신은 없는데, 남기고는 싶습니다</h3>
-            <p>지금의 서비스들은 올려야 남는 구조입니다. 남기고 싶어서 부계정을 만들어 본 적이 있다면, 그것이 바로 이 서비스가 시작된 자리입니다.</p>
+            <span class="pain-no">시나리오 02</span>
+            <h3>올리고는 싶은데, 다른 사람들이 보는 건 부담이에요</h3>
+            <p>지금의 SNS는 나만 볼 수 있는 공간이 없습니다. 그래서 새로운 부계정을 파지만 불편해요.</p>
+            <p>SNS에는 &lsquo;모두에게 보여주는 공간&rsquo;은 있지만, &lsquo;나만을 위한 공간&rsquo;은 없었습니다.</p>
           </article>
         </div>
-        <p class="note">사전 인터뷰 대상 6명에게 공통으로 나타난 어려움입니다. 시장 전체를 대표하는 수치가 아니라, 저희가 실제로 들은 이야기입니다.</p>
       </div>
     </section>
 
@@ -342,7 +351,6 @@
       <div class="shell">
         <div class="section-head">
           <h2 class="h-slab" id="try-title">한 사람을 골라 주세요.<br>영상이 끝날 때까지 따라갑니다.</h2>
-          <p>믿어 달라고 말하는 대신, 직접 해 보시라고 만들었습니다. 설치도 가입도 없이 이 페이지 안에서, 브라우저에서 그대로 돕니다.</p>
         </div>
         <div class="demo-wrap">
           <div class="demo-stage" id="demoStage" aria-label="영상에서 추적할 사람을 직접 지정하는 화면">
@@ -362,8 +370,9 @@
             <div class="status">
               <span class="status-mark" id="statusMark" aria-hidden="true">1</span>
               <div class="status-text">
-                <strong id="statusTitle">영상에서 나를 감싸 주세요.</strong>
-                <span id="statusDetail" role="status" aria-live="polite">자동 검출을 쓰거나 직접 드래그할 수 있습니다.</span>
+                <strong id="statusTitle">영상에서 나를 찾아서 드래그 해주세요.</strong>
+                <!-- [v2] 부가 설명 줄 삭제. 요소는 남긴다 — experience.js 가 진행 상태를 여기에 쓴다. -->
+                <span id="statusDetail" role="status" aria-live="polite"></span>
               </div>
             </div>
             <div class="progress" id="progress" hidden aria-label="분석 진행률"><span id="progressBar"></span></div>
@@ -381,7 +390,6 @@
         </div>
         <div class="cta-tail">
           <a class="btn" href="#start">내 영상으로 해보기</a>
-          <p>지금 돌아간 추적은 실제 제품이 쓰는 것과 같은 모델입니다. 다만 당신의 영상을 넣는 것은 앱에서만 됩니다.</p>
         </div>
       </div>
     </section>
@@ -392,30 +400,30 @@
     <section class="section section--compact" id="how" aria-labelledby="how-title">
       <div class="shell">
         <div class="section-head">
-          <h2 class="h-slab" id="how-title">자르고,<br>따라갑니다.</h2>
-          <p>카메라는 누구를 따라가야 할지 듣지 못합니다. 그 한 사람을 정하는 일만 당신이 하고, 나머지를 하일릿이 합니다. 원본 하나를 넣으면 네 단계로 지나갑니다.</p>
+          <h2 class="h-slab" id="how-title">내가 원하는 순간만 남기고,<br>나를 기억하고 따라갑니다.</h2>
         </div>
-        <ol class="steps">
-          <li><h3>자릅니다</h3><p>&ldquo;3점 넣는 장면&rdquo;처럼 말하면 그 구간만 찾아 잘라 옵니다. 어디쯤인지 몰라도 됩니다.</p></li>
-          <li><h3>따라갑니다</h3><p>한 번 지정하면 끝까지 따라갑니다. 사람이 앞을 지나가거나 화면 밖으로 나갔다 들어와도 같은 사람으로 다시 이어 붙입니다.</p></li>
-          <li><h3>고릅니다</h3><p>찾아낸 후보를 늘어놓습니다. 어느 순간이 특별했는지는 당신이 압니다. 무엇을 남길지는 직접 정하십니다.</p></li>
-          <li><h3>완성합니다</h3><p>따라간 위치를 기준으로 구도를 다시 잡고, 자막과 저작권이 정리된 곡을 앱 안에서 얹어 마무리합니다.</p></li>
+        <!-- [v2] 네 단계의 제목을 문장으로 바꿨다. 제목이 길어져 .steps h3 를 한 단 줄였다.
+             🔴 2단계 "놓치지 않고"는 계획서 §5 의 N2(절대성 주장 금지) 경계에 있다.
+                "절대" 같은 말을 더 붙이지 않는다. -->
+        <ol class="steps steps--sentence">
+          <li><h3>내가 원하는 장면을 말하면 그 장면만 찾아내서 자릅니다.</h3><p>&ldquo;3점 넣는 장면&rdquo;처럼 말하면 됩니다. 어디쯤인지 몰라도 됩니다.</p></li>
+          <li><h3>당신을 놓치지 않고 따라갑니다.</h3><p>한 번 지정하면 사람이 앞을 지나가거나 화면 밖으로 나갔다 들어와도 같은 사람으로 다시 이어 붙입니다.</p></li>
+          <li><h3>제안한 영상에서 가장 마음에 들고 특별한 순간을 고릅니다.</h3><p>어느 순간이 특별했는지는 당신이 압니다. 무엇을 남길지는 직접 정하십니다.</p></li>
+          <li><h3>고른 영상을 합치고, 잘 어울리는 음악과 함께 완성합니다.</h3><p>따라간 위치를 기준으로 구도를 다시 잡고, 자막과 저작권이 정리된 곡을 앱 안에서 얹습니다.</p></li>
         </ol>
         <div class="cta-tail">
           <a class="btn" href="#start">가장 먼저 써보기</a>
-          <p>정하는 일만 당신이 하시면 됩니다. 자동으로 올라가는 것은 없습니다.</p>
         </div>
       </div>
     </section>
 
-    <!-- S5 · 방법 ② 올릴지는 나중에 정합니다 (계획서 §3.5)
+    <!-- S5 · 방법 ② 내 기록에 먼저 남기고, 올릴지 선택합니다 (계획서 §3.5)
          벽2가 풀리는 자리이자 이 페이지의 감정적 클라이맥스. 주 CTA 를 붙인다.
-         블록 3(부계정)은 T9 확정 문구를 쓴다. -->
+         [v2] 블록3 의 축이 "부계정 대체"에서 "나만의 기록 보관·재생"으로 바뀌었다. -->
     <section class="section on-dark" id="after" aria-labelledby="after-title">
       <div class="shell">
         <div class="section-head">
-          <h2 class="h-slab" id="after-title">올릴지는<br>나중에 정합니다.</h2>
-          <p>한 편 만들고 끝나는 도구가 아닙니다. 만든 것이 남고, 남은 것을 보러 다시 오게 되는 구조입니다.</p>
+          <h2 class="h-slab" id="after-title">내 기록에 먼저 남기고,<br>올릴지 선택합니다.</h2>
         </div>
         <div class="after">
           <article class="after-block">
@@ -425,45 +433,42 @@
               <p>좋아요도, 보낸 공유 링크도 그 기록에 걸어 둔 공개 범위를 그대로 따릅니다. 한 곳에서 바꾸면 전부 같이 바뀝니다.</p>
             </div>
             <div class="mock">
-              <p class="mock-cap">공개 범위</p>
-              <div class="scope-row" aria-hidden="true"><span class="scope-opt">공개</span><span class="scope-opt is-on">나만 보기</span></div>
-              <p class="mock-cap">기본값 · 언제든 바꿀 수 있습니다</p>
+              <img src="assets/prototype/app-vis.jpg" width="620" height="1162" loading="lazy" alt="하일릿 앱의 공개 범위 화면. '이 기록은 이미 저장되었습니다. 여기서는 누구에게 보일지만 정합니다'라는 안내 아래에 나만 보기와 전체공개 두 가지가 있고, 나만 보기가 선택되어 있다.">
+              <p class="mock-cap">공개 범위 화면 · 기본 선택은 나만 보기</p>
             </div>
           </article>
 
           <article class="after-block after-block--flip">
             <div class="after-copy">
               <h3>돌아옵니다 — 앱을 열면 볼 것이 있습니다</h3>
-              <p>팔로잉과 추천 두 탭, 가운데 <em>+</em>가 편집입니다. 앱을 열면 팔로잉 탭이 바로 재생됩니다.</p>
+              <!-- [v2] 실물 앱 확인 후 정정. 하단은 플레이·+·프로필 3슬롯이고,
+                   팔로잉·추천은 피드 화면 위쪽 탭이다. 이전 문구는 둘을 섞어 적고 있었다. -->
+              <p>앱을 열면 <em>팔로잉 탭이 바로 재생됩니다.</em> 위쪽에서 팔로잉과 추천을 오가고, 아래에는 플레이·프로필과 가운데 올리기 버튼이 있습니다.</p>
               <p>가까운 사람들이 서로의 장면을 봅니다. 팔로우하고, 좋아요를 누르고, 댓글을 답니다.</p>
               <p>링크·카카오톡·문자로 보낼 수도 있습니다. <em>밖으로 나가는 것은 링크뿐이고 기록은 하일릿에 남습니다</em> — 받은 분은 하일릿에 가입한 뒤 그 기록을 봅니다.</p>
             </div>
             <div class="mock">
-              <p class="mock-cap">앱 화면</p>
-              <div class="tabs-row" aria-hidden="true"><span class="is-on">팔로잉</span><span>추천</span></div>
-              <!-- T7 확정 — 카드 한 장만 실물(T6 편집본)로 채우고 주변은 흐리게 둔다.
-                   흐림은 연출이 아니라 사실이다. 아직 공개된 기록이 많지 않은 것이 현재 상태다.
-                   🔴 흐린 카드를 여러 장 깔아 "뒤에 더 있다"로 읽히게 배치하지 않는다(§5).
-                   편집본이 나오면 아래 .feed-tile--live 안에 <img> 를 넣는다. -->
-              <div class="feed-row" aria-hidden="true"><span class="feed-tile feed-tile--live"></span><span class="feed-tile feed-tile--dim"></span><span class="feed-tile feed-tile--dim"></span></div>
-              <p class="mock-cap">한 편은 실제 기록 · 나머지는 아직입니다</p>
-              <div class="tabbar-row" aria-hidden="true"><i></i><span class="tabbar-plus">+</span><i></i></div>
+              <img src="assets/prototype/app-feed.jpg" width="620" height="1162" loading="lazy" alt="하일릿 앱의 피드 화면. 위쪽에 팔로잉과 추천 탭이 있고 세로 영상이 화면을 채우며, 오른쪽에 좋아요·댓글·공유가, 아래에 플레이·올리기·프로필이 있다.">
+              <p class="mock-cap">피드 · 앱을 열면 팔로잉 탭이 재생됩니다</p>
             </div>
           </article>
 
+          <!-- [v2] 블록3 재작성. "부계정을 안 만들어도 된다"(없어서 좋은 것)에서
+               "나만을 위해 쌓이고, 언제든 숏폼으로 본다"(있어서 좋은 것)로 축을 옮겼다.
+               시나리오 02 가 세운 "나만을 위한 공간이 없었다"를 여기서 받는다.
+               🔴 "부계정"은 시나리오 02 에 남아 있다 — T9(양쪽에 등장)에서 한쪽만 남는 형태다. -->
           <article class="after-block">
             <div class="after-copy">
-              <h3>부계정을 따로 만들지 않아도 됩니다</h3>
-              <p>보여줄 것과 남길 것을 <em>계정이 아니라 기록 하나하나로</em> 나눕니다. 한 계정 안에서 어떤 기록은 공개로, 어떤 기록은 나만 보기로 둡니다.</p>
-              <p>계정을 두 개로 쪼개서 하던 일을, 기록마다 정하는 것으로 바꿉니다.</p>
+              <h3>나만을 위한 공간에 쌓입니다</h3>
+              <p>나만 보기로 둔 기록도 하나하나 그대로 쌓입니다. <em>아무에게도 보이지 않지만, 사라지지도 않습니다.</em></p>
+              <p>쌓인 기록은 언제든 숏폼으로 다시 봅니다. 내 기록만 이어서 재생되는, 나만을 위한 피드입니다.</p>
             </div>
+            <!-- 🔴 이 화면이 이 블록의 근거다 — 나만 보기 타일과 공개 타일의 밝기가 같다.
+                 앱이 그렇게 정해 두었다(UX-006 항목 10): 비공개를 흐리게 그리면 "미완성"으로
+                 읽혀 비공개가 정상 경로라는 D4 가 뒤집힌다. 이미지를 흐리게 가공하지 않는다. -->
             <div class="mock">
-              <p class="mock-cap">한 계정 · 기록마다 다른 범위</p>
-              <div class="scope-list" aria-hidden="true">
-                <span class="scope-item"><i></i>지난주 경기<b>공개</b></span>
-                <span class="scope-item scope-item--priv"><i></i>연습 영상<b>나만 보기</b></span>
-                <span class="scope-item scope-item--priv"><i></i>처음 배우던 날<b>나만 보기</b></span>
-              </div>
+              <img src="assets/prototype/app-me.jpg" width="620" height="1162" loading="lazy" alt="하일릿 앱의 내 프로필 화면. 내 기록 탭에 세로 타일이 3열로 쌓여 있고 타일마다 자물쇠 또는 지구본 딱지가 붙어 있다.">
+              <p class="mock-cap">내 기록 · 자물쇠는 나만 보기입니다</p>
             </div>
           </article>
         </div>
@@ -487,7 +492,7 @@
         <ul class="result-list">
           <li><strong>찾고 자르던 시간이 사라집니다.</strong><span>20분짜리 원본을 처음부터 넘겨 가며 찾던 일을 하지 않으셔도 됩니다.</span></li>
           <li><strong>구석에 작게 잡힌 당신이 화면 가운데로.</strong><span>따라간 위치를 기준으로 구도를 다시 잡습니다.</span></li>
-          <li><strong>만들자마자 여기에 올라갑니다.</strong><span>공개 범위는 직접 정하시고, 기본값은 나만 보기입니다.</span></li>
+          <li><strong>만들자마자 하일릿의 내 개인 공간에 올라갑니다.</strong><span>공개 범위는 직접 정하시고, 기본값은 나만 보기입니다.</span></li>
         </ul>
         <div class="cta-tail">
           <a class="btn" href="#start">가장 먼저 써보기</a>
@@ -622,14 +627,15 @@
          아래 href 는 실제 가입 경로가 정해지면 그 주소로 바꾼다. -->
     <section class="section on-dark final" id="start" aria-labelledby="start-title">
       <div class="shell">
-        <p class="kicker">무료로 시작하기</p>
-        <h2 class="h-slab" id="start-title">원본은 이미 찍혀 있습니다.<br>남길 한 편만 아직입니다.</h2>
+        <p class="kicker">지금 시작하기</p>
+        <h2 class="h-slab" id="start-title">영상은 이미 있습니다.<br>이제, 나의 순간만 남기면 됩니다.</h2>
         <p class="lede">여러 사람이 함께 나온 영상에서 당신만 골라내 짧은 한 편으로 만듭니다. 올릴지는 나중에 정하시면 됩니다.</p>
         <div class="cta-row">
-          <a class="btn btn-mint" href="#top" data-signup>무료로 시작하기</a>
+          <!-- [v2] 최종 CTA 만 혜택을 문구에 담는다. 내비·히어로·요금의 버튼은 짧게 둔다 — 고정 내비에 들어가지 않는 길이다. -->
+          <a class="btn btn-mint" href="#top" data-signup>첫 달 5편 무료로 시작하기</a>
           <a class="btn btn-dark-ghost" href="#try">먼저 체험해보기</a>
         </div>
-        <p class="form-note">가입 첫 달 5편까지 무료입니다. 카드 정보는 받지 않습니다.</p>
+        <p class="form-note">카드 정보는 받지 않습니다.</p>
       </div>
     </section>
   </main>
@@ -642,7 +648,7 @@
         <img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT">
         <nav class="footer-links" aria-label="법적 고지"><a href="#faq">개인정보 처리방침 (준비 중)</a><a href="#faq">이용약관 (준비 중)</a><a href="#start">문의</a></nav>
       </div>
-      <p class="draft-flag">LP v1 초안 · 2026 — 여기 적힌 요금과 기능 범위는 확정 전입니다. 히어로 영상과 피드 예시는 소재 준비 중이라 비어 있습니다.</p>
+      <p class="draft-flag">LP v2 초안 · 2026 — 여기 적힌 요금과 기능 범위는 확정 전입니다. 히어로 영상과 피드 예시는 소재 준비 중이라 비어 있습니다.</p>
     </div>
   </footer>
 

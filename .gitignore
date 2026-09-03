@@ -19,6 +19,11 @@ assets/video-frames/
 # 같은 이유로 원본 샘플 영상도 커밋하지 않는다.
 docs/샘플영상/
 
+# 앱 프로토타입 캡처도 같은 이유로 커밋하지 않는다.
+# 실물 앱(ui-hilit)을 그대로 찍은 화면이라 실제 인물 얼굴이 담긴다.
+# lp-v2.html 이 이 경로를 참조하지만, 파일이 없어도 페이지는 열린다.
+assets/prototype/
+
 # 도구가 만드는 것
 node_modules/
 *.log

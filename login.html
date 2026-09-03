@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="HILIT 로그인 — 임시 화면입니다.">
+  <title>HILIT — 로그인 (임시)</title>
+  <link rel="icon" href="assets/hilit-app-icon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* 🔴 임시 화면이다. 랜딩페이지의 [무료 사용하기]가 도착할 곳이 필요해서 세워 둔 껍데기이고,
+       실제 인증은 붙어 있지 않다. 제품 가입 플로우가 정해지면 이 파일을 그 주소로 대체한다.
+       폼은 제출되지 않는다 — 어떤 값도 어디로도 보내지 않는다(action 없음 · submit 차단). */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body { min-width: 320px; min-height: 100dvh; display: grid; grid-template-rows: auto 1fr; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); line-height: 1.58; word-break: keep-all; }
+    img { display: block; max-width: 100%; }
+    button, input, a { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+    ::selection { background: var(--color-accent); color: var(--color-accent-ink); }
+
+    .site-nav { position: relative; background: var(--color-accent); color: var(--color-accent-ink); border-block-end: var(--rule) solid var(--color-accent-rule); }
+    .site-nav::before { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--color-dot); -webkit-mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; mask: url("assets/dot-pattern.svg") 0 0 / 320px 80px repeat; pointer-events: none; }
+    .nav-inner { position: relative; z-index: 1; width: min(100%, var(--content-max)); min-height: var(--nav-height); margin-inline: auto; padding-inline: var(--page-gutter); display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+    .brand { display: inline-flex; align-items: center; min-height: 2.5rem; text-decoration: none; }
+    .brand img { width: var(--brand-size); height: auto; }
+    .nav-back { color: var(--color-accent-ink); font-size: var(--text-sm); font-weight: 700; text-decoration: none; text-underline-offset: .25em; }
+
+    main { display: grid; place-items: center; padding: var(--space-8) var(--page-gutter); }
+    .card { width: min(100%, 26rem); display: grid; gap: var(--space-5); padding: var(--space-7); border: var(--rule) solid var(--color-rule); border-radius: var(--radius-lg); background: var(--color-paper); }
+    .card h1 { margin: 0; font-family: var(--font-display); font-size: clamp(1.75rem, 4vw, 2.4rem); font-weight: 800; line-height: 1.04; letter-spacing: -.04em; }
+    .card > p { margin: 0; color: var(--color-muted); font-size: var(--text-sm); }
+
+    .temp-flag { display: grid; gap: var(--space-1); margin: 0; padding: var(--space-3) var(--space-4); border-inline-start: 3px solid var(--color-accent-strong); background: var(--color-paper-2); color: var(--color-ink-2); font-size: var(--text-xs); }
+    .temp-flag b { font-weight: 800; }
+
+    form { display: grid; gap: var(--space-4); }
+    label { display: grid; gap: var(--space-2); font-size: var(--text-sm); font-weight: 700; }
+    input { min-height: 3rem; padding-inline: var(--space-4); border: var(--rule) solid var(--color-rule); border-radius: var(--radius-sm); background: var(--color-paper); color: var(--color-ink); font-weight: 500; }
+    input::placeholder { color: var(--color-muted); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: var(--space-5); border: var(--rule) solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-ink); color: var(--color-light); font-weight: 700; line-height: 1; text-decoration: none; white-space: nowrap; transition: background-color var(--dur-short) var(--ease-out), transform var(--dur-micro) var(--ease-out); }
+    .btn-mint { border-color: var(--color-accent); background: var(--color-accent); color: var(--color-accent-ink); }
+    .btn-ghost { border-color: var(--color-rule); background: var(--color-clear); color: var(--color-ink); }
+    .btn:active { transform: translateY(1px); }
+
+    .divider { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-3); color: var(--color-muted); font-size: var(--text-xs); font-weight: 700; letter-spacing: .12em; }
+    .divider::before, .divider::after { content: ""; height: var(--rule); background: var(--color-rule); }
+    .socials { display: grid; gap: var(--space-3); }
+
+    .foot { margin: 0; color: var(--color-muted); font-size: var(--text-xs); text-align: center; }
+    .foot a { text-underline-offset: .25em; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover { transform: translateY(-1px); }
+      .btn-mint:hover { background: var(--color-accent-strong); }
+      .btn-ghost:hover { background: var(--color-paper-3); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a class="brand" href="lp-v3.html" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
+      <a class="nav-back" href="lp-v3.html">&larr; 랜딩페이지로 돌아가기</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h1>하일릿 시작하기</h1>
+      <p>가입하면 첫 달 5편을 무료로 만드실 수 있습니다. 만든 기록의 기본 공개 범위는 나만 보기입니다.</p>
+
+      <p class="temp-flag">
+        <b>임시 화면입니다.</b>
+        <span>실제 로그인은 아직 연결되지 않았습니다. 제품 가입 플로우가 정해지면 이 화면을 그 주소로 대체합니다.</span>
+      </p>
+
+      <!-- action 없음 · submit 차단. 입력값은 어디로도 전송되지 않는다. -->
+      <form id="loginForm" novalidate>
+        <label>이메일
+          <input type="email" name="email" autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>비밀번호
+          <input type="password" name="password" autocomplete="current-password" placeholder="비밀번호">
+        </label>
+        <button class="btn btn-mint" type="submit">로그인</button>
+      </form>
+
+      <p class="divider"><span>또는</span></p>
+
+      <div class="socials">
+        <button class="btn btn-ghost" type="button" disabled>카카오로 계속하기 (준비 중)</button>
+        <button class="btn btn-ghost" type="button" disabled>Google로 계속하기 (준비 중)</button>
+      </div>
+
+      <p class="foot"><a href="lp-v3.html#try">먼저 편집 서비스를 체험해 보시겠어요?</a></p>
+    </div>
+  </main>
+
+  <script>
+    // 임시 화면이라 붙일 백엔드가 없다. 제출을 막아 값이 URL 로 새어 나가지 않게 한다.
+    document.getElementById('loginForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      alert('임시 화면입니다. 실제 로그인은 아직 연결되지 않았습니다.');
+    });
+  </script>
+</body>
+</html>
