@@ -206,7 +206,11 @@
        🔴 좁은 화면에서는 나눌 폭이 없다. 그때는 영상을 가운데 두고 카피를 얹은 뒤
           .scrim--video 로 누른다(아래 기본값 그대로) — 대비 근거가 그대로 산다. */
     @media (min-width: 60rem) {
-      .panel--split .bg-video--fit, .panel--split .bg-poster--fit { inset-inline-start: 41%; width: auto; }
+      /* 🔴 폭을 inset 만으로 잡으면 안 된다. video 는 대체 요소라 height 가 정해져
+         있으면 width:auto 가 inset 이 아니라 제 비율(972:832)에서 나온다 —
+         실측했더니 1051px 이 나와 화면 오른쪽으로 202px 넘쳤다. 폭을 직접 준다. */
+      .panel--split { --split: 44%; }
+      .panel--split .bg-video--fit, .panel--split .bg-poster--fit { inset-inline-start: var(--split); width: calc(100% - var(--split)); }
       .panel--split .scrim { display: none; }
       .panel--split .anchor { max-width: 32rem; }
       .panel--split .p-title { font-size: clamp(1.9rem, 2.9vw, 2.6rem); }
@@ -264,6 +268,10 @@
     .view--gallery > .view-bar { position: sticky; inset-block-start: var(--nav-height); z-index: var(--z-nav); padding: var(--space-2) var(--page-gutter); background: oklch(12% 0.016 165 / .82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
     /* 붙어 있는 막대 높이만큼 패널 위를 비운다 — 카피가 막대 밑에 깔리지 않게. */
     .view--gallery .panel-inner { padding-block-start: calc(var(--nav-height) + var(--bar-h) + var(--space-5)); }
+    /* 🔴 돌아갈 길 막대는 흐름에서 자리를 차지한다. 패널이 100svh 그대로면 그만큼
+       화면 아래로 밀린다 — 실측 56px. 잘라내던(cover) 때는 몰랐지만 통째로 보이게
+       바꾸니 영상 아래가 잘려 나간다. 막대 높이만큼 덜어 한 화면에 들인다. */
+    .view--gallery .panel { min-height: calc(100svh - var(--bar-h)); }
 
 
     /* ── 요금제 — 3단 카드 ──────────────────────────────────────────
