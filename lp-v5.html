@@ -104,10 +104,18 @@
        지금까지 소재가 전부 어두웠기 때문에 그것으로 충분했다.
        흰 UI 녹화(record-flow)는 위쪽이 rgb(255,255,255) 로 뜬다. 실측 — 그 위에서
        뷰바 글자가 1.12:1, 위 절반이 1.69:1 로 AA(4.5:1)에 한참 못 미쳤다.
-       그래서 위아래를 함께 누르되 가운데는 열어 둔다(화면이 보여야 배경의 뜻이 산다).
-       바꿀 때는 다시 재고 넣는다. */
+
+       🔴 세로 그라디언트 하나로는 두 요구를 같이 못 채운다. 카피는 왼쪽 아래에 있고
+          폰 화면은 가운데에 있어서, 카피를 살리려고 아래를 누르면 폰도 같이 사라진다.
+          그래서 가로 성분을 얹는다 — 왼쪽(카피)은 누르고 오른쪽(폰)은 연다.
+          겹친 alpha = 1-(1-세로)(1-가로).
+          카피 구역(x 5~37% · 아래 5~40%) → 약 .89 : 본문 7.4:1 로 AAA
+          폰 화면(x 37~64% · 가운데)      → 약 .58 : 영상이 그대로 보인다
+          상단은 텍스트가 없고 뷰바가 제 바탕(.82)을 갖고 있어 열어 둔다.
+       🔴 숫자를 눈으로 고르지 않는다. 바꿀 때는 다시 재고 넣는다. */
     .scrim--bright { background:
-      linear-gradient(to top, oklch(12% 0.016 165 / .95) 0%, oklch(12% 0.016 165 / .92) 42%, oklch(12% 0.016 165 / .86) 60%, oklch(12% 0.016 165 / .72) 78%, oklch(12% 0.016 165 / .78) 100%); }
+      linear-gradient(to right, oklch(12% 0.016 165 / .64) 0%, oklch(12% 0.016 165 / .60) 36%, oklch(12% 0.016 165 / .30) 50%, oklch(12% 0.016 165 / 0) 64%),
+      linear-gradient(to top, oklch(12% 0.016 165 / .76) 0%, oklch(12% 0.016 165 / .72) 30%, oklch(12% 0.016 165 / .58) 55%, oklch(12% 0.016 165 / .48) 78%, oklch(12% 0.016 165 / .48) 100%); }
 
     /* 카피 앵커 — spacex .inner-left-bottom / .inner-right-bottom / .inner-center */
     .anchor { display: grid; align-content: end; gap: var(--space-4); width: 100%; max-width: 33rem; }
@@ -185,6 +193,12 @@
     .scroll-cue::after { content: ""; width: 1.5rem; height: 2.25rem; border: 2px solid oklch(96% 0.014 165 / .28); border-radius: 999px; }
     /* 패널 배경 미디어 — .media-fill 자리에 실물이 깔린다. */
     .bg-video, .bg-poster { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* 🔴 이 한 패널만 영상을 잘라내지 않고 통째로 보여 준다(사용자 지정).
+       실물 화면 기록이라 cover 로 자르면 위의 배지와 아래 타임라인이 사라진다 —
+       "무엇을 하는 화면인가"가 그 두 곳에 있어서 잘리면 뜻이 상한다.
+       대신 좌우에 검은 여백이 생긴다. 지면보다 한 단 어두운 값이라 영상의 검은
+       바탕과 이어져 보이고, 여백이 아니라 화면 테두리처럼 읽힌다. */
+    .bg-video--fit, .bg-poster--fit { object-fit: contain; background: oklch(10% 0.016 165); }
     .bg-poster { display: none; }
     /* 데이터 절약 모드 — 아래 스크립트가 <html> 에 붙인다. 영상을 내리고 정지 이미지를
        세운다(움직임 줄이기와 같은 처리다). 미디어 질의로는 잡히지 않아 클래스로 받는다. */
@@ -239,29 +253,6 @@
     /* 붙어 있는 막대 높이만큼 패널 위를 비운다 — 카피가 막대 밑에 깔리지 않게. */
     .view--gallery .panel-inner { padding-block-start: calc(var(--nav-height) + var(--bar-h) + var(--space-5)); }
 
-    /* ── 하이라이트 구간 (하이라이트구간.html 을 옮겨 심었다) ────────────
-       헤드라인 위에 작게 얹는 제품 UI 조각이다. 원본 크기(900×250)의 1/2 남짓으로
-       줄이되 비율과 색은 원본 그대로 뒀다 — 색을 페이지 민트(--color-accent,
-       파스텔)로 바꾸면 제품 화면이 아니라 장식으로 읽힌다.
-       🔴 이름은 전부 hl- 로 접두했다. 원본의 .select/.time/.label 과 bare button{}
-          규칙을 그대로 들이면 이 지면의 버튼과 칩이 통째로 덮인다.
-       🔴 조작 버튼(Ⅱ·MINT)은 빼고 파형·구간·타임코드만 남겼다 — 원본의 개발용
-          토글이라 히어로 위에서는 읽을 데가 없다. */
-    .hl-clip { display: grid; gap: var(--space-3); width: min(100%, 23rem); padding-block-start: 1.4rem; }
-    .hl-wavebox { position: relative; height: 4.5rem; border: 1px solid rgba(170, 205, 199, .15); border-radius: 10px; background: radial-gradient(ellipse at 50% 50%, rgba(32, 210, 172, .055), transparent 60%), #050908; }
-    #hlWave { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .hl-select { position: absolute; inset-block: 0; left: 34%; width: 32%; border: 1.5px solid #67f1ce; border-radius: 10px; background: rgba(56, 224, 187, .035); box-shadow: 0 0 9px rgba(73, 240, 203, .45), inset 0 0 12px rgba(73, 240, 203, .04); pointer-events: none; }
-    .hl-select::after { content: ""; position: absolute; left: 0; right: 0; inset-block-start: -1px; height: 2px; background: linear-gradient(90deg, transparent, #72f5d2, transparent); opacity: .8; }
-    .hl-handle { position: absolute; inset-block-start: -1.3rem; inset-inline-start: -1px; display: grid; place-items: center; width: calc(100% + 2px); height: 1.05rem; border-radius: 6px; background: #38e3bd; box-shadow: 0 0 14px rgba(56, 227, 189, .6); color: #06231d; font-size: 7px; font-weight: 900; letter-spacing: 2px; }
-    /* 손잡이 — 원본처럼 끌어서 구간을 좁히고 넓힌다. touch-action 을 꺼야 모바일에서
-       페이지가 같이 스크롤되지 않는다. */
-    .hl-grip { position: absolute; inset-block: 0; z-index: 2; width: 12px; cursor: ew-resize; touch-action: none; }
-    .hl-grip--l { left: 34%; transform: translateX(-50%); }
-    .hl-grip--r { left: 66%; transform: translateX(-50%); }
-    .hl-times { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; font-size: 10px; }
-    .hl-label { padding: .3rem .55rem; border: 1px solid rgba(72, 224, 190, .18); border-radius: 6px; background: #07100e; color: #4de4c1; }
-    .hl-time { padding: .3rem .5rem; border: 1px solid rgba(120, 150, 145, .18); border-radius: 6px; background: #07100e; color: #c4d8d3; font-variant-numeric: tabular-nums; }
-    .hl-dash { color: #66807a; }
 
     /* ── 요금제 — 3단 카드 ──────────────────────────────────────────
        「요금제 적용.html」의 밝은 지면용 .plan 골격을 이 판으로 옮긴 것이다.
@@ -780,28 +771,12 @@
             alpha .88~.95 면 제목 15.0~17.1:1 · 본문 8.5~9.6:1 로 AAA 다.
             카피를 그 구간에 앉히려고 앵커를 왼쪽 아래에 둔다 — 가운데로 올리면 근거가 깨진다. -->
     <section class="panel" aria-labelledby="try-title">
-      <video class="bg-video" src="assets/highlight-editor.mp4" poster="assets/highlight-editor-poster.jpg"
+      <video class="bg-video bg-video--fit" src="assets/highlight-editor.mp4" poster="assets/highlight-editor-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
-      <img class="bg-poster" src="assets/highlight-editor-poster.jpg" alt="" width="972" height="832" aria-hidden="true">
+      <img class="bg-poster bg-poster--fit" src="assets/highlight-editor-poster.jpg" alt="" width="972" height="832" aria-hidden="true">
       <div class="scrim scrim--video" aria-hidden="true"></div>
       <div class="panel-inner panel-inner--left">
         <div class="anchor anchor--wide">
-          <!-- 장식이다. 화면 낭독기에는 읽히지 않는다 — 원본도 키보드로는 닿지
-               않는 포인터 전용 조각이라, 안 읽히는 것과 못 쓰는 것이 어긋나지 않는다. -->
-          <div class="hl-clip" aria-hidden="true">
-            <div class="hl-wavebox" id="hlWavebox">
-              <canvas id="hlWave"></canvas>
-              <div class="hl-select" id="hlSelect"><span class="hl-handle">I　　III　　I</span></div>
-              <div class="hl-grip hl-grip--l" id="hlGripL"></div>
-              <div class="hl-grip hl-grip--r" id="hlGripR"></div>
-            </div>
-            <div class="hl-times">
-              <span class="hl-label">선택 구간</span>
-              <span class="hl-time" id="hlStart">01:53.1</span>
-              <span class="hl-dash">&mdash;</span>
-              <span class="hl-time" id="hlEnd">02:53.1</span>
-            </div>
-          </div>
           <h1 class="p-title" id="try-title"><em>오직 당신만을</em><br>따라가는 영상을 만듭니다.</h1>
           <p class="p-lede">여러 사람이 함께 나온 영상에서 당신만 골라내는 것이 하는 일입니다.<br>고정된 자리에서 찍은 20분 안팎의 원본을 가장 먼저 맞추고 있습니다.</p>
           <div class="cta-row">
@@ -1044,133 +1019,5 @@
     })();
   </script>
 
-  <!-- 하이라이트 구간 — 하이라이트구간.html 의 스크립트를 옮겼다.
-       🔴 IIFE 로 감쌌다. 원본은 start·end·render·update 같은 이름을 전역에 두는데,
-          이 문서의 다른 스크립트와 부딪힐 자리다.
-       🔴 원본은 rAF 를 무조건 계속 돈다. 이 조각은 [탐험하기]로 들어가야 보이는
-          화면 안에 있어서, 보이지 않는 동안 프레임을 태울 이유가 없다 —
-          배경 영상과 같은 규칙으로 화면에 들 때만 돌린다.
-       🔴 움직임 줄이기에서는 한 장만 그린다(파형은 남고 일렁임만 멎는다). -->
-  <script>
-    (() => {
-      const box = document.getElementById('hlWavebox');
-      if (!box) return;
-      const canvas = document.getElementById('hlWave');
-      const ctx = canvas.getContext('2d');
-      const sel = document.getElementById('hlSelect');
-      const gripL = document.getElementById('hlGripL');
-      const gripR = document.getElementById('hlGripR');
-      const startOut = document.getElementById('hlStart');
-      const endOut = document.getElementById('hlEnd');
-      const calm = matchMedia('(prefers-reduced-motion: reduce)');
-
-      let W = 0, H = 0, phase = 0, frame = 0, drag = null, onScreen = false;
-      let left = .34, right = .66;
-
-      // 숨어 있는 동안에는 폭이 0 이다. 잴 수 있을 때만 캔버스를 다시 세운다.
-      const measure = () => {
-        const rect = box.getBoundingClientRect();
-        if (!rect.width || !rect.height) return false;
-        const dpr = Math.min(devicePixelRatio || 1, 2);
-        W = rect.width; H = rect.height;
-        canvas.width = W * dpr; canvas.height = H * dpr;
-        canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        return true;
-      };
-
-      // 가운데가 조금 세고 좌우로 잦아드는 오디오 envelope — 원본 그대로다.
-      const amp = (x) => {
-        const env = .38 + .55 * Math.pow(Math.sin(Math.PI * x), .55);
-        const detail = .28 * Math.abs(Math.sin(x * 95 * Math.PI))
-                     + .23 * Math.abs(Math.sin(x * 157 * Math.PI + 1.1))
-                     + .14 * Math.abs(Math.sin(x * 251 * Math.PI + .4));
-        return Math.min(1, env * (.54 + detail));
-      };
-
-      const draw = () => {
-        if (!W || !H) return;
-        const moving = !calm.matches;
-        const bars = Math.max(90, Math.floor(W / 4.5));
-        const cy = H / 2;
-        ctx.clearRect(0, 0, W, H);
-        ctx.lineCap = 'round';
-        for (let i = 0; i < bars; i += 1) {
-          const x = i / (bars - 1);
-          const inSelection = x >= left && x <= right;
-          let a = amp(x);
-          if (moving) a *= 1 + .10 * Math.sin(phase * 3 + i * .18);
-          const h = Math.max(3, a * H * .66);
-          ctx.lineWidth = inSelection ? 1.7 : 1.35;
-          if (inSelection) {
-            const alpha = moving ? .68 + .32 * (.5 + .5 * Math.sin(phase * 4 + i * .10)) : .72;
-            ctx.strokeStyle = `rgba(83,238,201,${alpha})`;
-            ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(83,238,201,.8)';
-          } else {
-            ctx.strokeStyle = 'rgba(71,101,96,.32)';
-            ctx.shadowBlur = 0;
-          }
-          ctx.beginPath();
-          ctx.moveTo(x * W, cy - h / 2);
-          ctx.lineTo(x * W, cy + h / 2);
-          ctx.stroke();
-        }
-        ctx.shadowBlur = 0;
-        if (moving) {
-          // 훑고 지나가는 재생선. 원본은 171px 상자에서 위아래 25px 을 비웠다 — 같은 비율.
-          const at = ((phase * .035) % 1) * W;
-          ctx.strokeStyle = 'rgba(88,238,203,.13)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(at, H * .15);
-          ctx.lineTo(at, H * .85);
-          ctx.stroke();
-        }
-      };
-
-      const tick = () => { phase += .016; draw(); frame = requestAnimationFrame(tick); };
-      const settle = () => {
-        cancelAnimationFrame(frame);
-        frame = 0;
-        if (!onScreen || !measure()) return;
-        if (calm.matches) { draw(); return; }
-        frame = requestAnimationFrame(tick);
-      };
-
-      const clock = (seconds) => {
-        const minutes = String(Math.floor(seconds / 60)).padStart(2, '0');
-        return `${minutes}:${(seconds % 60).toFixed(1).padStart(4, '0')}`;
-      };
-      const update = () => {
-        sel.style.left = `${left * 100}%`;
-        sel.style.width = `${(right - left) * 100}%`;
-        gripL.style.left = `${left * 100}%`;
-        gripR.style.left = `${right * 100}%`;
-        startOut.textContent = clock(left * 300);
-        endOut.textContent = clock(right * 300);
-        if (!frame) draw();
-      };
-
-      const ratio = (clientX) => {
-        const rect = box.getBoundingClientRect();
-        return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-      };
-      gripL.addEventListener('pointerdown', (event) => { drag = 'l'; event.preventDefault(); });
-      gripR.addEventListener('pointerdown', (event) => { drag = 'r'; event.preventDefault(); });
-      addEventListener('pointermove', (event) => {
-        if (!drag) return;
-        const p = ratio(event.clientX);
-        if (drag === 'l') left = Math.min(p, right - .025);
-        else right = Math.max(p, left + .025);
-        update();
-      });
-      addEventListener('pointerup', () => { drag = null; });
-
-      new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; settle(); }).observe(box);
-      new ResizeObserver(settle).observe(box);
-      calm.addEventListener('change', settle);
-      update();
-    })();
-  </script>
 </body>
 </html>
