@@ -46,7 +46,7 @@
           추적 상자가 따라붙는 판으로 다시 만들었다 — 제품이 하는 일을 배경이 보여 준다.
           히어로=hero-tracking · AS-IS=basketball-arena · TO-BE 01=figure-ice
           TO-BE 02(내 기록 공간)=my-record
-          편집 서비스 체험 첫 패널=soccer-thermal
+          편집 서비스 체험 첫 패널=highlight-editor(실물 화면 기록)
           나머지 영상·사진 자리는 .media-fill 로 비워 두었다.
        🔴 스냅은 proximity 다 — mandatory 로 잠그면 한 화면을 넘는 패널
           (FAQ 처럼 긴 것)에서 스크롤이 갇힌다.
@@ -760,21 +760,29 @@
     </div>
 
     <!-- ── 패널 ① · 오직 당신만을 따라가는 영상 ─────────────────────
-         배경 영상 — assets/soccer-thermal.mp4. 인물마다 색이 다른 추적 상자를 얹은 판이다.
-         열화상(적외선) 톤으로 찍힌 축구 경기다.
-         여러 사람이 뛰는 화면에서 사람 형체만 또렷이 떠오르는 그림이라, 이 패널의
-         "오직 당신만을 따라간다"와 맞는다. 얼굴이 드러나지 않는 열화상이고 생성된
-         CG 라 실제 인물이 아니다(NF-017 무관).
-         🔴 이 자리는 원래 assets/tracking-follow.mp4 를 기다리던 곳이다. 이름을 역할이
-            아니라 내용으로 바꿨다(다른 배경 소재와 같은 규칙) — 되돌리려면 두 src 만 고친다.
+         배경 영상 — assets/highlight-editor.mp4 (972x832 · 30fps · 12.4초).
+         다른 배경과 성격이 다르다. 소재 영상이 아니라 **실물 하일릿 화면을 그대로 찍은
+         기록**이다 — 추적 상자가 붙은 영상을 띄워 두고 구간을 고르는 장면이라,
+         "오직 당신만을 따라가는 영상을 만든다"를 말이 아니라 화면으로 보여 준다.
+         화면 안에서 도는 것은 이미 쓰고 있는 열화상 축구 클립이라 얼굴이 드러나지
+         않고 생성된 CG 다(NF-017 무관).
+         🔴 60fps 원본을 30fps 로 다시 인코딩했다. 배경에 60fps 는 필요 없고 용량이
+            두 배가 된다. 다만 화면 기록이라 글자 획이 얇아 CRF 는 23 으로 낮춰
+            (=품질을 올려) 잡았다. 오디오 트랙은 뺐다(-an).
+         🔴 세로로 긴 소재다(972x832 · 1.17:1). object-fit:cover 라 넓은 화면에서는
+            위아래가 잘린다 — 1440x900 기준 각 13.5%. 위의 배지와 아래 타임라인이
+            그 구간에 있어 데스크톱에서는 화면 안 영상만 남는다. 잘려도 뜻이 상하지
+            않는 배치라 그대로 둔다. 바꿀 거면 소재를 가로로 다시 찍는 편이 낫다.
          🔴 preload="none" · autoplay 없음 — 다른 배경 영상과 같은 규약이다. 재생은 아래
             IntersectionObserver 가 화면에 든 것만 켠다.
-         🔴 scrim 은 영상 패널용(.scrim--video)이다. 카피를 아래쪽 alpha .88 구간에
-            앉히려고 앵커를 왼쪽 아래에 둔다 — 가운데로 올리면 그 근거가 깨진다. -->
+         🔴 scrim 은 영상 패널용(.scrim--video)이다. 수치 근거 — 372프레임 중 잘리고
+            남는 영역의 카피 자리에서 가장 밝은 지점 rgb(120,218,194) 위에서
+            alpha .88~.95 면 제목 15.0~17.1:1 · 본문 8.5~9.6:1 로 AAA 다.
+            카피를 그 구간에 앉히려고 앵커를 왼쪽 아래에 둔다 — 가운데로 올리면 근거가 깨진다. -->
     <section class="panel" aria-labelledby="try-title">
-      <video class="bg-video" src="assets/soccer-thermal.mp4" poster="assets/soccer-thermal-poster.jpg"
+      <video class="bg-video" src="assets/highlight-editor.mp4" poster="assets/highlight-editor-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
-      <img class="bg-poster" src="assets/soccer-thermal-poster.jpg" alt="" width="1280" height="720" aria-hidden="true">
+      <img class="bg-poster" src="assets/highlight-editor-poster.jpg" alt="" width="972" height="832" aria-hidden="true">
       <div class="scrim scrim--video" aria-hidden="true"></div>
       <div class="panel-inner panel-inner--left">
         <div class="anchor anchor--wide">
@@ -970,7 +978,26 @@
       bgVideos.forEach((video) => {
         // 소재가 없거나 깨졌을 때는 정지 이미지로 간다.
         video.addEventListener('error', () => standDown(video));
+        // 🔴 이 스크립트는 지면 맨 아래에 있다. 히어로처럼 preload="auto" 인 영상은
+        //    문서를 읽는 동안 벌써 받기 시작하므로, 소재가 깨졌으면 error 가 여기
+        //    도달하기 "전"에 이미 지나가 버린다 — 그러면 위 리스너는 영영 울리지 않고
+        //    빈 화면만 남는다. 붙는 시점에 이미 실패해 있는지 직접 확인한다.
+        if (video.error) standDown(video);
       });
+
+      // 🔴 관찰자만 믿지 않는다. 교차 통지는 늦게 오기도 하고, 방금까지 hidden 이던
+      //    요소(.view 안의 영상)에는 아예 오지 않기도 한다. 그러면 화면에 들어와
+      //    있는데도 멈춰 선 자리가 생긴다. 자리를 직접 재서 onScreen 을 다시 적는다.
+      //    🔴 숨은 요소는 사각형이 전부 0 이라 아래 식에서 저절로 걸러진다
+      //       (bottom 0 > innerHeight*0.15 이 거짓). 따로 hidden 을 보지 않아도 된다.
+      const recount = () => {
+        bgVideos.forEach((video) => {
+          const box = video.getBoundingClientRect();
+          const seen = box.top < innerHeight * 0.85 && box.bottom > innerHeight * 0.15;
+          if (seen) onScreen.add(video); else onScreen.delete(video);
+        });
+        settle();
+      };
 
       // ① 미리 받아 두는 눈 — 한 화면 앞(rootMargin)에서 내려받기만 시작한다.
       //    🔴 load() 를 부르지 않는다. load() 는 요소를 처음으로 되감고 진행 중이던
@@ -999,31 +1026,18 @@
       // 배경으로 보낸 탭의 영상을 브라우저가 스스로 멈춰 두는 일이 있다.
       document.addEventListener('visibilitychange', () => { if (!document.hidden) settle(); });
 
-      // 🔴 관찰자만 믿지 않는다. 교차 통지는 늦게 오기도 하고, 방금까지 hidden 이던
-      //    요소(.view 안의 영상)에는 아예 오지 않기도 한다. 그러면 화면에 들어와
-      //    있는데도 멈춰 선 자리가 생긴다. 자리를 직접 재서 onScreen 을 다시 적는다.
-      //    🔴 숨은 요소는 사각형이 전부 0 이라 아래 식에서 저절로 걸러진다
-      //       (bottom 0 > innerHeight*0.15 이 거짓). 따로 hidden 을 보지 않아도 된다.
-      const recount = () => {
-        bgVideos.forEach((video) => {
-          const box = video.getBoundingClientRect();
-          const seen = box.top < innerHeight * 0.85 && box.bottom > innerHeight * 0.15;
-          if (seen) onScreen.add(video); else onScreen.delete(video);
-        });
-        settle();
-      };
-
       // 화면(.view)을 열고 닫을 때 — 그 안의 영상은 방금까지 hidden 이라 관찰자가
       // 깨워 주지 않는다. 열리는 순간 자리를 다시 재서 직접 켠다.
-      // (지면이 새 자리를 잡을 틈을 주려고 다음 프레임에서 부른다.)
-      window.addEventListener('hashchange', () => requestAnimationFrame(recount));
+      // 🔴 지면이 새 자리를 잡을 틈을 준 뒤에 재야 한다. rAF 는 배경 탭에서 아예
+      //    오지 않아 그 사이 열린 화면이 멈춘 채 남는다 — 타이머로 간다.
+      window.addEventListener('hashchange', () => setTimeout(recount, 0));
 
       // 스크롤이 멎을 때 한 번씩 확인한다 — 이미 돌고 있으면 settle 이 건드리지
       // 않으므로(위 `!video.paused` 문) 재생을 끊지 않는다.
       let tick = 0;
       addEventListener('scroll', () => {
-        cancelAnimationFrame(tick);
-        tick = requestAnimationFrame(recount);
+        if (tick) return;
+        tick = setTimeout(() => { tick = 0; recount(); }, 120);
       }, { passive: true });
 
       settle();

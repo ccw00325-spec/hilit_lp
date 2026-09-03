@@ -19,6 +19,8 @@ docs/
 #    그 패널 배경만 조용히 비어 배포된다(깨진 자리가 아니라 검은 자리라 눈에 안 띈다).
 assets/*.mp4
 !assets/hero-tracking.mp4
+!assets/highlight-editor.mp4
+!assets/record-flow.mp4
 !assets/basketball-arena.mp4
 !assets/figure-ice.mp4
 !assets/my-record.mp4
