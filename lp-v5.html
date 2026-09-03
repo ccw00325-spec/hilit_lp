@@ -199,6 +199,18 @@
        대신 좌우에 검은 여백이 생긴다. 지면보다 한 단 어두운 값이라 영상의 검은
        바탕과 이어져 보이고, 여백이 아니라 화면 테두리처럼 읽힌다. */
     .bg-video--fit, .bg-poster--fit { object-fit: contain; background: oklch(10% 0.016 165); }
+    /* 넓은 화면에서는 영상을 오른쪽으로 몰고, 왼쪽에 생긴 검은 자리에 카피를 앉힌다.
+       🔴 영상 위에 글자를 얹지 않으므로 scrim 으로 누를 일이 없다 — 영상이 한 점도
+          가려지지 않는다. 이것이 "다 보이게 한다"의 실제 조건이다. scrim 을 남기면
+          아래 타임라인이 다시 어둠에 잠겨, 잘라내지 않은 보람이 없어진다.
+       🔴 좁은 화면에서는 나눌 폭이 없다. 그때는 영상을 가운데 두고 카피를 얹은 뒤
+          .scrim--video 로 누른다(아래 기본값 그대로) — 대비 근거가 그대로 산다. */
+    @media (min-width: 60rem) {
+      .panel--split .bg-video--fit, .panel--split .bg-poster--fit { inset-inline-start: 41%; width: auto; }
+      .panel--split .scrim { display: none; }
+      .panel--split .anchor { max-width: 32rem; }
+      .panel--split .p-title { font-size: clamp(1.9rem, 2.9vw, 2.6rem); }
+    }
     .bg-poster { display: none; }
     /* 데이터 절약 모드 — 아래 스크립트가 <html> 에 붙인다. 영상을 내리고 정지 이미지를
        세운다(움직임 줄이기와 같은 처리다). 미디어 질의로는 잡히지 않아 클래스로 받는다. */
@@ -405,7 +417,7 @@
   <header class="site-nav">
     <div class="nav-inner">
       <a class="brand" href="#top" aria-label="하일릿 홈"><img src="assets/hilit-wordmark.png" width="720" height="228" alt="HILIT"></a>
-      <nav class="nav-links" aria-label="주요 메뉴"><a href="#as-is">고객 시나리오</a><a href="#try">직접 체험</a><a href="#record">내 기록 공간</a><a href="#pricing">요금</a></nav>
+      <nav class="nav-links" aria-label="주요 메뉴"><a href="#as-is">고객 시나리오</a><a href="#auto-edit">편집 서비스</a><a href="#my-record">내 기록 공간</a><a href="#pricing">요금</a></nav>
       <a class="nav-action" href="login.html">무료로 시작하기</a>
     </div>
   </header>
@@ -770,7 +782,7 @@
             남는 영역의 카피 자리에서 가장 밝은 지점 rgb(120,218,194) 위에서
             alpha .88~.95 면 제목 15.0~17.1:1 · 본문 8.5~9.6:1 로 AAA 다.
             카피를 그 구간에 앉히려고 앵커를 왼쪽 아래에 둔다 — 가운데로 올리면 근거가 깨진다. -->
-    <section class="panel" aria-labelledby="try-title">
+    <section class="panel panel--split" aria-labelledby="try-title">
       <video class="bg-video bg-video--fit" src="assets/highlight-editor.mp4" poster="assets/highlight-editor-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
       <img class="bg-poster bg-poster--fit" src="assets/highlight-editor-poster.jpg" alt="" width="972" height="832" aria-hidden="true">
