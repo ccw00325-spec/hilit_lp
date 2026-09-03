@@ -210,7 +210,18 @@
          있으면 width:auto 가 inset 이 아니라 제 비율(972:832)에서 나온다 —
          실측했더니 1051px 이 나와 화면 오른쪽으로 202px 넘쳤다. 폭을 직접 준다. */
       .panel--split { --split: 44%; }
-      .panel--split .bg-video--fit, .panel--split .bg-poster--fit { inset-inline-start: var(--split); width: calc(100% - var(--split)); }
+      /* 🔴 --fit 에만 걸지 않는다. 오른쪽으로 모는 것은 두 패널이 함께 쓰는 배치이고,
+         칸 안을 담을지(contain·--fit) 채울지(cover·기본)는 소재마다 다른 별개의 결정이다.
+         기록 패널은 폰 목업이 가운데 27% 안에 있고 나머지가 빈 배경이라, 담으면
+         위아래 여백만 커지고 화면이 작아진다. 채워서 빈 좌우를 잘라내면 같은 칸에서
+         화면이 1.8배로 커진다 — 잘리는 것은 배경뿐이라 잃는 것이 없다. */
+      .panel--split .bg-video, .panel--split .bg-poster { inset-inline-start: var(--split); width: calc(100% - var(--split)); }
+      /* 🔴 채워 담는(cover) 소재만 붙어 있는 막대(내비+뷰바) 아래에서 시작하게 한다.
+         inset:0 이면 영상 맨 위가 막대 뒤로 들어가는데, 담는(contain) 소재는 위아래
+         여백이 있어 표가 안 나지만 채우는 소재는 화면 윗부분이 그대로 잘려 보인다 —
+         기록 패널에서 프로필 줄이 막대에 물렸다. --fit 이 아닌 것만 골라 내린다. */
+      .view--gallery .panel--split .bg-video:not(.bg-video--fit),
+      .view--gallery .panel--split .bg-poster:not(.bg-poster--fit) { inset-block-start: calc(var(--nav-height) + var(--bar-h)); }
       .panel--split .scrim { display: none; }
       .panel--split .anchor { max-width: 32rem; }
       .panel--split .p-title { font-size: clamp(1.9rem, 2.9vw, 2.6rem); }
@@ -828,15 +839,22 @@
          "먼저 남기고, 올릴지 나중에 고른다"를 배경이 화면 그대로 보여 준다.
          🔴 원본 앞 5프레임을 버렸다 — 첫 프레임이 완전한 검정이고 2~4프레임이 페이드인이라
             루프가 돌 때마다 배경이 깜빡였다. 오디오 트랙은 없지만 -an 규약을 맞췄다.
-         🔴 소재가 거의 흰 화면이다(최고 밝기 255,255,255). 지금까지 소재와 차원이 다르지만
-            공용 .scrim--video 는 위를 거의 비워 두어 뷰바 글자가 1.12:1 까지 떨어졌다.
-            그래서 위아래를 함께 누르는 .scrim--bright 를 따로 두고 여기에만 쓴다.
-         🔴 앵커는 왼쪽 아래에 둔다 — 카피를 alpha .88 구간에 앉히려는 것이고,
-            가운데로 올리면 위 수치의 근거가 깨진다.
+         🔴 넓은 화면에서는 .panel--split 로 간다 — 앞 패널(오직 당신만을…)과 같은 처리다.
+            영상을 오른쪽으로 몰고 왼쪽 검은 자리에 카피를 앉힌다. 글자를 영상 위에
+            얹지 않으므로 scrim 을 걷어도 되고, 그래서 앱 화면이 한 점도 가려지지 않는다.
+            이 소재는 "먼저 남기고 나중에 고른다"를 화면으로 보여 주는 UX 녹화라
+            **또렷하게 보이는 것 자체가 이 패널이 하는 말**이다. 눌러 두면 할 말이 사라진다.
+         🔴 좁은 화면(<60rem)에서는 나눌 폭이 없어 예전처럼 영상을 깔고 글자를 얹는다.
+            그때는 .scrim--bright 가 그대로 산다 — 소재가 거의 흰 화면이라(최고 255,255,255)
+            공용 .scrim--video 로는 위가 비어 뷰바 글자가 1.12:1 까지 떨어졌던 자리다.
+         🔴 16:9 소재라 오른쪽 칸(약 56%)에 담기면 위아래에 검은 여백이 남는다. 뷰바가
+            앉는 맨 위는 그 여백이라 흰 화면이 바 밑으로 들어오지 않는다 — 넓은 화면에서
+            scrim 을 걷어도 바 글자의 대비가 무너지지 않는 근거다.
          🔴 실물 앱 녹화라 화면 안에 계정 핸들과 영상 썸네일이 담긴다. 랜딩은 공개 웹이므로
-            §1.4 T6·NF-017 이 걸리는 소재다. 배경으로 깔리면 scrim 아래로 들어가 식별이
-            어렵지만, 원본에 사람이 담긴 것은 사실이다. 발행 판단은 이 주석을 보고 한다. -->
-    <section class="panel" aria-labelledby="record-title">
+            §1.4 T6·NF-017 이 걸리는 소재다. 🔺 여기서 scrim 을 걷으면 지금까지 "가려져서
+            식별이 어렵다"고 적어 둔 조건이 사라진다 — 화면이 또렷해지는 만큼 핸들과
+            썸네일도 또렷해진다. 발행 전에 이 소재의 인물 표시를 다시 확인해야 한다. -->
+    <section class="panel panel--split" aria-labelledby="record-title">
       <video class="bg-video" src="assets/record-flow.mp4" poster="assets/record-flow-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
       <img class="bg-poster" src="assets/record-flow-poster.jpg" alt="" width="1280" height="720" aria-hidden="true">
