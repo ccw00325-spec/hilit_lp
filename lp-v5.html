@@ -100,6 +100,14 @@
        AAA(7:1)를 넘으려면 .88 이상이어야 한다. 카피가 앉는 아래쪽을 .88 위로 유지한다.
        🔴 숫자를 눈으로 고르지 않는다. 바꿀 때는 다시 재고 넣는다. */
     .scrim--video { background: linear-gradient(to top, oklch(12% 0.016 165 / .95) 0%, oklch(12% 0.016 165 / .92) 45%, oklch(12% 0.016 165 / .88) 62%, oklch(12% 0.016 165 / .5) 80%, transparent 95%); }
+    /* 🔴 흰 화면 소재 전용. .scrim--video 는 아래만 누르고 위는 거의 비운다 —
+       지금까지 소재가 전부 어두웠기 때문에 그것으로 충분했다.
+       흰 UI 녹화(record-flow)는 위쪽이 rgb(255,255,255) 로 뜬다. 실측 — 그 위에서
+       뷰바 글자가 1.12:1, 위 절반이 1.69:1 로 AA(4.5:1)에 한참 못 미쳤다.
+       그래서 위아래를 함께 누르되 가운데는 열어 둔다(화면이 보여야 배경의 뜻이 산다).
+       바꿀 때는 다시 재고 넣는다. */
+    .scrim--bright { background:
+      linear-gradient(to top, oklch(12% 0.016 165 / .95) 0%, oklch(12% 0.016 165 / .92) 42%, oklch(12% 0.016 165 / .86) 60%, oklch(12% 0.016 165 / .72) 78%, oklch(12% 0.016 165 / .78) 100%); }
 
     /* 카피 앵커 — spacex .inner-left-bottom / .inner-right-bottom / .inner-center */
     .anchor { display: grid; align-content: end; gap: var(--space-4); width: 100%; max-width: 33rem; }
@@ -214,6 +222,8 @@
        갤러리와 형제다. 하나가 보이면 다른 하나는 hidden 이다. */
     .view { min-height: 100svh; padding-block: calc(var(--nav-height) + var(--space-6)) var(--space-8); background: var(--color-dark); }
     /* 돌아갈 길을 화면 맨 위에 둔다 — 갤러리로 되돌아가는 유일한 문이다. */
+    /* 🔴 바탕을 깐다. 이 바는 배경 영상 위에 떠 있어서, 뒤에 밝은 소재가 오면
+       글자가 눕는다(흰 UI 녹화에서 1.12:1 로 측정됐다). 내비와 같은 방식으로 누른다. */
     .view-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); padding-block-end: var(--space-4); border-block-end: var(--rule) solid oklch(96% 0.014 165 / .18); }
     .view-bar p { margin: 0; color: var(--color-accent); font-family: var(--font-display); font-size: var(--text-xs); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
     .btn-back::before { content: "\2190"; margin-inline-end: .7em; }
@@ -225,7 +235,7 @@
        그래서 .view 가 걸어 둔 세로 여백을 여기서 되돌린다. */
     .view--gallery { --bar-h: 3.75rem; padding-block: 0; }
     /* 돌아갈 길 — 내비 바로 아래에 붙는다. 패널이 늘어도 계속 보인다. */
-    .view--gallery > .view-bar { position: sticky; inset-block-start: var(--nav-height); z-index: var(--z-nav); padding: var(--space-2) var(--page-gutter); background: oklch(12% 0.016 165 / .55); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+    .view--gallery > .view-bar { position: sticky; inset-block-start: var(--nav-height); z-index: var(--z-nav); padding: var(--space-2) var(--page-gutter); background: oklch(12% 0.016 165 / .82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
     /* 붙어 있는 막대 높이만큼 패널 위를 비운다 — 카피가 막대 밑에 깔리지 않게. */
     .view--gallery .panel-inner { padding-block-start: calc(var(--nav-height) + var(--bar-h) + var(--space-5)); }
 
@@ -810,17 +820,24 @@
       <p>내 기록 공간</p>
     </div>
 
-    <!-- 배경 영상 — 액자형 미디어 자리(.media-slot)를 빼고 전면 배경으로 돌렸다.
-         다른 배경 소재와 같은 규칙이다: assets/my-record.mp4 와 같은 이름의
-         -poster.jpg 를 넣으면 바로 뜬다. 그전까지는 어두운 지면 위로 카피만 보인다 —
-         깨진 자리가 아니라 빈 자리다. preload="none" · autoplay 없음도 같은 규약이다.
-         🔴 scrim 은 영상 패널용(.scrim--video)이다. 카피를 아래쪽 alpha .88 구간에
-            앉히려고 앵커를 왼쪽 아래에 둔다 — 가운데로 올리면 그 근거가 깨진다. -->
+    <!-- 배경 영상 — assets/record-flow.mp4 (1280x720 · 24fps · 9.3초).
+         앱에서 내 기록을 열고 공개 범위를 고르는 UX 흐름 녹화다. 이 패널이 말하는
+         "먼저 남기고, 올릴지 나중에 고른다"를 배경이 화면 그대로 보여 준다.
+         🔴 원본 앞 5프레임을 버렸다 — 첫 프레임이 완전한 검정이고 2~4프레임이 페이드인이라
+            루프가 돌 때마다 배경이 깜빡였다. 오디오 트랙은 없지만 -an 규약을 맞췄다.
+         🔴 소재가 거의 흰 화면이다(최고 밝기 255,255,255). 지금까지 소재와 차원이 다르지만
+            공용 .scrim--video 는 위를 거의 비워 두어 뷰바 글자가 1.12:1 까지 떨어졌다.
+            그래서 위아래를 함께 누르는 .scrim--bright 를 따로 두고 여기에만 쓴다.
+         🔴 앵커는 왼쪽 아래에 둔다 — 카피를 alpha .88 구간에 앉히려는 것이고,
+            가운데로 올리면 위 수치의 근거가 깨진다.
+         🔴 실물 앱 녹화라 화면 안에 계정 핸들과 영상 썸네일이 담긴다. 랜딩은 공개 웹이므로
+            §1.4 T6·NF-017 이 걸리는 소재다. 배경으로 깔리면 scrim 아래로 들어가 식별이
+            어렵지만, 원본에 사람이 담긴 것은 사실이다. 발행 판단은 이 주석을 보고 한다. -->
     <section class="panel" aria-labelledby="record-title">
-      <video class="bg-video" src="assets/my-record.mp4" poster="assets/my-record-poster.jpg"
+      <video class="bg-video" src="assets/record-flow.mp4" poster="assets/record-flow-poster.jpg"
              muted loop playsinline preload="none" aria-hidden="true"></video>
-      <img class="bg-poster" src="assets/my-record-poster.jpg" alt="" width="1280" height="720" aria-hidden="true">
-      <div class="scrim scrim--video" aria-hidden="true"></div>
+      <img class="bg-poster" src="assets/record-flow-poster.jpg" alt="" width="1280" height="720" aria-hidden="true">
+      <div class="scrim scrim--bright" aria-hidden="true"></div>
       <div class="panel-inner panel-inner--left">
         <div class="anchor anchor--wide">
           <h1 class="p-title" id="record-title">내 기록에 먼저 남기고,<br>올릴지 선택합니다.</h1>
@@ -884,6 +901,11 @@
           if (panel) panel.scrollIntoView({ behavior: 'instant', block: 'start' });
           else window.scrollTo({ top: 0, behavior: 'instant' });
         }
+        // 🔴 숨긴 곳의 배경 영상을 여기서 직접 멈춘다. hidden 이면 요소 크기가 0 이라
+        //    IntersectionObserver 가 곧 정리해 주지만, 그 콜백이 다음 프레임 뒤에 온다 —
+        //    실측 — 화면을 닫고 1.5초 뒤에도 그 영상이 재생 중이었다. 갤러리로 돌아온
+        //    사용자에게는 보이지 않는 영상이 계속 디코딩되는 셈이라 바로 끊는다.
+        document.querySelectorAll('[hidden] .bg-video').forEach((v) => v.pause());
         return view;
       };
 
@@ -929,53 +951,81 @@
       // 🔴 재생이 끝내 되지 않는 자리는 비워 두지 않고 정지 이미지로 바꿔 세운다.
       //    자동 재생이 막히는 경우가 실제로 있다 — iOS 저전력 모드, 배터리 절약,
       //    브라우저 자동재생 차단 설정. 그때 <video> 는 지면에 남은 채 아무것도
-      //    그리지 않아 히어로가 빈 화면이 된다. 소재가 없는 것과 같은 꼴이 된다.
-      //    play() 가 거절당하거나 소재가 깨지면 그 패널만 .is-still 로 돌린다.
+      //    그리지 않아 히어로가 빈 화면이 된다.
+      //    🔴 다만 "막혔다"로 볼 수 있는 것은 NotAllowedError 하나뿐이다.
+      //       AbortError 는 재생이 시작되기 전에 다른 일이 끼어들었다는 뜻이라
+      //       (스크롤로 pause 가 겹치는 흔한 경우) 곧 다시 틀면 된다.
+      //       이것까지 정지 이미지로 보내면 멀쩡한 영상이 사진으로 굳는다.
       const standDown = (video) => video.closest('.panel')?.classList.add('is-still');
 
       const settle = () => bgVideos.forEach((video) => {
         if (calm.matches || thrifty || !onScreen.has(video)) { video.pause(); return; }
+        if (!video.paused) return;                 // 이미 돌고 있으면 건드리지 않는다
         const started = video.play?.();
-        // play() 는 약속을 돌려준다. 삼키면 막힌 것을 알 길이 없다 — 받아서 세운다.
-        if (started?.catch) started.catch(() => standDown(video));
+        if (started?.catch) started.catch((err) => {
+          if (err?.name === 'NotAllowedError') standDown(video);
+        });
       });
 
       bgVideos.forEach((video) => {
-        // 소재가 없거나 깨졌을 때도 같은 자리로 보낸다.
+        // 소재가 없거나 깨졌을 때는 정지 이미지로 간다.
         video.addEventListener('error', () => standDown(video));
-        // 🔴 셋을 한꺼번에 내려받지 않으려고 preload="none" 을 걸어 두었는데,
-        //    그러면 화면에 든 뒤에야 첫 바이트를 받기 시작해 몇 초간 빈 채로 있다.
-        //    받는 시점과 트는 시점을 갈라 둔다 — 아래 warmer 가 한 화면 앞에서
-        //    미리 받아 두고, 트는 것은 그대로 화면에 들어왔을 때다.
-        if (video.preload === 'none') video.preload = 'metadata';
       });
 
       // ① 미리 받아 두는 눈 — 한 화면 앞(rootMargin)에서 내려받기만 시작한다.
-      //    load() 는 재생이 아니라서 여러 개가 겹쳐도 화면에서 같이 돌지 않는다.
+      //    🔴 load() 를 부르지 않는다. load() 는 요소를 처음으로 되감고 진행 중이던
+      //       재생을 끊는다 — 히어로처럼 이미 돌고 있는 영상에 걸면 그 자리에서
+      //       멈추고 play() 가 AbortError 로 거절된다. preload 를 올리는 것만으로
+      //       브라우저가 알아서 더 받아 둔다. 되감지 않고 받기만 하는 길이다.
       const warmer = new IntersectionObserver((entries) => {
         entries.forEach(({ target, isIntersecting }) => {
           if (!isIntersecting || thrifty || calm.matches) return;
-          if (target.dataset.warm) return;
-          target.dataset.warm = '1';
-          target.load?.();
+          if (target.preload !== 'auto') target.preload = 'auto';
           warmer.unobserve(target);
         });
       }, { rootMargin: '100% 0px' });
 
-      // ② 트는 눈 — 여기는 여백을 두지 않는다. 패널이 한 화면짜리라 여백을 주면
-      //    다음 패널이 늘 걸쳐 있어 첫 화면에서 둘이 함께 켜진다. 15% 가 보일 때 켠다.
-      const watcher = new IntersectionObserver((entries) => {
-        entries.forEach(({ target, isIntersecting }) => {
-          if (isIntersecting) onScreen.add(target); else onScreen.delete(target);
-        });
-        settle();
-      }, { threshold: 0.15 });
+      // ② 트는 눈 — 화면에 들고 나는 순간을 알려 주는 방울로만 쓴다.
+      //    🔴 통지에 실려 오는 isIntersecting 을 그대로 쓰지 않는다. 그 값은 통지가
+      //       만들어진 시점의 것이라, 방금 열린 .view 처럼 자리가 급히 바뀐 자리에서는
+      //       늦게 도착해 "안 보인다"로 덮어써 버린다 — recount 가 켜 둔 영상을
+      //       뒤늦게 온 통지가 다시 멈추는 경합이 실제로 났다.
+      //       그래서 어느 길로 들어오든 판단은 recount 한 곳에서만 한다.
+      const watcher = new IntersectionObserver(() => recount(), { threshold: 0.15 });
 
       bgVideos.forEach((video) => { warmer.observe(video); watcher.observe(video); });
       calm.addEventListener('change', settle);
       // 탭을 다시 열었을 때 멈춘 채로 있지 않게 한 번 더 맞춘다 —
       // 배경으로 보낸 탭의 영상을 브라우저가 스스로 멈춰 두는 일이 있다.
       document.addEventListener('visibilitychange', () => { if (!document.hidden) settle(); });
+
+      // 🔴 관찰자만 믿지 않는다. 교차 통지는 늦게 오기도 하고, 방금까지 hidden 이던
+      //    요소(.view 안의 영상)에는 아예 오지 않기도 한다. 그러면 화면에 들어와
+      //    있는데도 멈춰 선 자리가 생긴다. 자리를 직접 재서 onScreen 을 다시 적는다.
+      //    🔴 숨은 요소는 사각형이 전부 0 이라 아래 식에서 저절로 걸러진다
+      //       (bottom 0 > innerHeight*0.15 이 거짓). 따로 hidden 을 보지 않아도 된다.
+      const recount = () => {
+        bgVideos.forEach((video) => {
+          const box = video.getBoundingClientRect();
+          const seen = box.top < innerHeight * 0.85 && box.bottom > innerHeight * 0.15;
+          if (seen) onScreen.add(video); else onScreen.delete(video);
+        });
+        settle();
+      };
+
+      // 화면(.view)을 열고 닫을 때 — 그 안의 영상은 방금까지 hidden 이라 관찰자가
+      // 깨워 주지 않는다. 열리는 순간 자리를 다시 재서 직접 켠다.
+      // (지면이 새 자리를 잡을 틈을 주려고 다음 프레임에서 부른다.)
+      window.addEventListener('hashchange', () => requestAnimationFrame(recount));
+
+      // 스크롤이 멎을 때 한 번씩 확인한다 — 이미 돌고 있으면 settle 이 건드리지
+      // 않으므로(위 `!video.paused` 문) 재생을 끊지 않는다.
+      let tick = 0;
+      addEventListener('scroll', () => {
+        cancelAnimationFrame(tick);
+        tick = requestAnimationFrame(recount);
+      }, { passive: true });
+
       settle();
     })();
   </script>
